@@ -152,7 +152,7 @@ export const getAllGroups = async (req: JkRequest, res: JkResponse, next: NextFu
       (group) =>
         (status ? status === group.status : true)
         && group.totalMembers !== group.slots &&
-        // (customerPublicKey ? true : group.slots > 0) &&
+        (!myGroups ? group.slots > 0 : true) && // only with free slots
         true,
     ).sort((a, b) => (b.slots - a.slots) / Math.abs(b.slots - a.slots));
   

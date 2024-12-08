@@ -9,7 +9,7 @@ import {
 } from 'app/group/types';
 import { addMonths, addWeeks } from 'date-fns';
 
-export const getGroupStatus = (group: GroupDocument) => {
+export const getGroupStatus = (group: GroupDocument, myWithdrawals: GroupResponseDTO['myWithdrawals'], customerPublicKey: string) => {
   let depositedCollaterals = 0;
   for (const member of Object.values(group.members || {})) {
     if (
@@ -31,12 +31,18 @@ export const getGroupStatus = (group: GroupDocument) => {
       group.period === GroupPeriod.MONTHLY
         ? addMonths(new Date(group.startsOnTimestamp), group.totalMembers)
         : addWeeks(new Date(group.startsOnTimestamp), group.totalMembers);
-    if (group.startsOnTimestamp > Date.now()) {
+    const allWithdrawals = myWithdrawals.round.successfullyWithdrawn
+      && myWithdrawals.collateral.successfullyWithdrawn
+      && myWithdrawals.interest.successfullyWithdrawn;
+    
+    if (group.startsOnTimestamp > Date.now() && !allWithdrawals) {
       return GroupStatus.PENDING;
     }
-    if (endDate.getTime() > Date.now()) {
+    
+    if (endDate.getTime() > Date.now() && !allWithdrawals) {
       return GroupStatus.ACTIVE;
     }
+    
     return GroupStatus.CONCLUDED;
   }
   
@@ -57,8 +63,8 @@ export const getGroupSlots = (group: Pick<GroupDocument, 'members' | 'collateral
   return group.totalMembers - depositedCollaterals;
 };
 
-const isSuccessTransaction = (deposit: GroupMember['deposits'][number] | GroupMember['withdrawals'][string] | undefined, amount: number) => {
-  return !!deposit?.amount && +deposit?.amount === +amount && !!deposit?.timestamp && !!deposit?.transactionSignature;
+export const isSuccessTransaction = (deposit: GroupMember['deposits'][number] | GroupMember['withdrawals'][string] | undefined, amount: number | undefined) => {
+  return (typeof amount === 'number' ? !!deposit?.amount && +deposit?.amount === +amount : true) && !!deposit?.timestamp && !!deposit?.transactionSignature;
 };
 
 export const toGroupResponseDTO = (
@@ -93,8 +99,8 @@ export const toGroupResponseDTO = (
       timestamp: deposit.timestamp,
     };
   }
-  console.log(countSuccessDeposits, { countSuccessRounds }, me);
   
+  // TODO: valid with dates
   const myWithdrawals: GroupResponseDTO['myWithdrawals'] = {
     [GroupWithdrawalType.COLLATERAL]: {
       amount: me?.withdrawals?.collateral?.amount ?? 0,
@@ -115,12 +121,13 @@ export const toGroupResponseDTO = (
       amount: me?.withdrawals?.interest?.amount ?? 0,
       type: GroupWithdrawalType.INTEREST,
       timestamp: me?.withdrawals?.interest?.timestamp ?? 0,
-      successfullyWithdrawn:
-        !!me?.withdrawals?.interest?.timestamp &&
-        !!me?.withdrawals?.interest?.transactionSignature,
+      successfullyWithdrawn: isSuccessTransaction(me?.withdrawals?.interest, undefined),
       enabled: countSuccessRounds === group.totalMembers + 1,
     },
   };
+  myWithdrawals.collateral.enabled = myWithdrawals.collateral.enabled && !myWithdrawals.collateral.successfullyWithdrawn;
+  myWithdrawals.round.enabled = myWithdrawals.round.enabled && !myWithdrawals.round.successfullyWithdrawn;
+  myWithdrawals.interest.enabled = myWithdrawals.interest.enabled && !myWithdrawals.interest.successfullyWithdrawn;
   
   const response = {
     amount: group.amount,
@@ -145,7 +152,7 @@ export const toGroupResponseDTO = (
     slots: getGroupSlots(group),
     period: group.period,
     startsOnTimestamp: group.startsOnTimestamp,
-    status: getGroupStatus(group),
+    status: getGroupStatus(group, myWithdrawals, customerPublicKey),
     isOwner: !!group.members?.[customerPublicKey]?.isOwner,
     myPosition: me?.position || 0,
     currentPosition,
