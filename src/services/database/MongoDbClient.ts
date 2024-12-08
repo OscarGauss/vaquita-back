@@ -121,7 +121,7 @@ export class MongoDbClient {
           ...document,
           createdAt: now,
           updatedAt: now,
-          companyId: '',
+          // companyId: '',
           ownerUserId: '', // !!(customer?._id?.toString?.()) ? customer._id.toString() : company.systemAdminUserId,
           state: EntityState.RELEASED,
           logs: [],

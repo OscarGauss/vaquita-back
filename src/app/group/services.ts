@@ -1,15 +1,17 @@
+import { logError } from 'helpers';
 import { Filter, Sort } from 'mongodb';
 import { dbClient } from 'services';
-import { CreateEntityDocument, UpdateEntityDocument } from 'types';
+import { CreateEntityDocument, ErrorCode, JkError, LogLevel, UpdateEntityDocument } from 'types';
 import { GroupBaseDocument, GroupDocument } from './types';
 
 const { findByFilter, insertOne, findOne, updateOne, deleteOne } =
   dbClient.crud<GroupBaseDocument>('group');
 
 export const getGroups = async (
+  companyId: string,
   filter: Filter<GroupDocument>,
   sort?: Sort,
-): Promise<GroupDocument[]> => findByFilter(filter, { sort });
+): Promise<GroupDocument[]> => findByFilter({ ...filter, companyId }, { sort });
 
 export const createGroup = async (
   contest: CreateEntityDocument<GroupBaseDocument>,
@@ -17,8 +19,14 @@ export const createGroup = async (
   return await insertOne(null, contest);
 };
 
-export const getGroup = async (id: string): Promise<GroupDocument> =>
-  findOne(id);
+export const getGroup = async (companyId: string, id: string): Promise<GroupDocument> => {
+  const group = await findOne(id);
+  if (group.companyId !== companyId) {
+    logError(LogLevel.INFO)(JSON.stringify({ groupId: id, companyId }), 'error on getGroupData');
+    throw new JkError(ErrorCode.ERR0211, { message: 'not found' });
+  }
+  return group;
+};
 
 export const updateGroup = async (
   id: string,

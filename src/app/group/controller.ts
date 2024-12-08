@@ -1,6 +1,7 @@
+import { UpdateEntityDocument } from '@juki-team/commons';
 import { Filter, Sort } from 'mongodb';
 import { EntityState, JkRequest, JkResponse, NextFunction } from 'types';
-import { toGroupResponseDTO } from './helpers';
+import { getGroupSlots, toGroupResponseDTO } from './helpers';
 import { createGroup, deleteGroup, getGroup, getGroups, updateGroup } from './services';
 import {
   GroupBaseDocument,
@@ -43,7 +44,6 @@ export const postCreateGroup = async (req: JkRequest, res: JkResponse, next: Nex
     startsOnTimestamp,
     customerPublicKey,
   } = req.body as GroupCreateDTO;
-  console.log(req.body);
   
   const collateralAmount = amount * totalMembers;
   const memberPositions = [];
@@ -53,7 +53,9 @@ export const postCreateGroup = async (req: JkRequest, res: JkResponse, next: Nex
   shuffle(memberPositions);
   const position = memberPositions.pop() as number;
   
+  const companyId = req.company.id;
   const newGroup: GroupBaseDocument = {
+    companyId,
     crypto,
     name,
     amount,
@@ -82,7 +84,7 @@ export const postCreateGroup = async (req: JkRequest, res: JkResponse, next: Nex
   
   const result = await createGroup(newGroup);
   res.sendContent(toGroupResponseDTO(
-    await getGroup(result.insertedId.toString()),
+    await getGroup(companyId, result.insertedId.toString()),
     customerPublicKey,
   ));
 };
@@ -143,7 +145,7 @@ export const getAllGroups = async (req: JkRequest, res: JkResponse, next: NextFu
       break;
     default:
   }
-  const groups = await getGroups(filter, sort);
+  const groups = await getGroups(req.company.id, filter, sort);
   const contents: GroupResponseDTO[] = groups
     .map((group) => toGroupResponseDTO(group, customerPublicKey))
     .filter(
@@ -152,7 +154,7 @@ export const getAllGroups = async (req: JkRequest, res: JkResponse, next: NextFu
         && group.totalMembers !== group.slots &&
         // (customerPublicKey ? true : group.slots > 0) &&
         true,
-    );
+    ).sort((a, b) => (b.slots - a.slots) / Math.abs(b.slots - a.slots));
   
   res.sendContents(contents, { page: 0, size: 0, sort: [], totalElements: contents.length });
 };
@@ -161,7 +163,8 @@ export const getGroupData = async (req: JkRequest<{ id: string }>, res: JkRespon
   const groupId = req.params.id;
   const customerPublicKey = req.query.customerPublicKey as string | '';
   
-  const group = await getGroup(groupId);
+  const group = await getGroup(req.company.id, groupId);
+  
   const content: GroupResponseDTO = toGroupResponseDTO(
     group,
     customerPublicKey,
@@ -179,7 +182,7 @@ export const postDepositGroup = async (req: JkRequest<{ id: string }>, res: JkRe
   console.log(req.body);
   // TODO: validate amount
   
-  const group = await getGroup(groupId);
+  const group = await getGroup(req.company.id, groupId);
   const collateral = group.amount * group.totalMembers;
   let newMembers: GroupBaseDocument['members'];
   const memberPositions = [ ...group.memberPositions ];
@@ -238,10 +241,22 @@ export const postDepositGroup = async (req: JkRequest<{ id: string }>, res: JkRe
     };
   }
   
-  await updateGroup(groupId, {
+  const slots = getGroupSlots({
+    members: newMembers,
+    totalMembers: group.totalMembers,
+    collateralAmount: group.collateralAmount,
+  });
+  
+  const doc: UpdateEntityDocument<GroupDocument> = {
     members: newMembers,
     memberPositions: [ ...memberPositions ],
-  });
+  };
+  
+  if (slots === 0) { // TODO: only for testing purposes
+    doc.startsOnTimestamp = Date.now();
+  }
+  
+  await updateGroup(groupId, doc);
   
   res.sendContent('ok');
 };
@@ -253,7 +268,7 @@ export const postDisjoinGroup = async (req: JkRequest<{ id: string }>, res: JkRe
   
   // TODO: validate amount
   
-  const group = await getGroup(groupId);
+  const group = await getGroup(req.company.id, groupId);
   if (group.members[customerPublicKey]) {
     const newMembers: GroupBaseDocument['members'] = { ...group.members };
     const memberPositions = [
@@ -267,7 +282,7 @@ export const postDisjoinGroup = async (req: JkRequest<{ id: string }>, res: JkRe
     });
   }
   
-  const groupUpdated = await getGroup(groupId);
+  const groupUpdated = await getGroup(req.company.id, groupId);
   const content: GroupResponseDTO = toGroupResponseDTO(
     groupUpdated,
     customerPublicKey,
@@ -282,7 +297,7 @@ export const postJoinGroup = async (req: JkRequest<{ id: string }>, res: JkRespo
   
   // TODO: validate amount
   
-  const group = await getGroup(groupId);
+  const group = await getGroup(req.company.id, groupId);
   const memberPositions = [ ...group.memberPositions ];
   
   const position = memberPositions.pop() as number;
@@ -302,7 +317,7 @@ export const postJoinGroup = async (req: JkRequest<{ id: string }>, res: JkRespo
     memberPositions: [ ...memberPositions ],
   });
   
-  const groupUpdated = await getGroup(groupId);
+  const groupUpdated = await getGroup(req.company.id, groupId);
   const content: GroupResponseDTO = toGroupResponseDTO(
     groupUpdated,
     customerPublicKey,
@@ -319,7 +334,7 @@ export const postWithdrawal = async (req: JkRequest<{ id: string }>, res: JkResp
   
   // TODO: validate amount
   
-  const group = await getGroup(groupId);
+  const group = await getGroup(req.company.id, groupId);
   let newMembers: GroupBaseDocument['members'] = { ...group.members };
   
   if (type === GroupWithdrawalType.COLLATERAL) {

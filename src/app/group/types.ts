@@ -41,6 +41,7 @@ export interface GroupMember {
 }
 
 export interface GroupBaseDocument {
+  companyId: string;
   crypto: GroupCrypto;
   name: string;
   amount: number;
@@ -113,6 +114,7 @@ export interface GroupResponseDTO {
       type: GroupWithdrawalType;
       timestamp: number;
       successfullyWithdrawn: boolean;
+      enabled: boolean,
     };
   };
 }

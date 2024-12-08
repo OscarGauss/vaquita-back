@@ -1,5 +1,6 @@
 import {
   GroupDocument,
+  GroupMember,
   GroupPeriod,
   GroupResponseDTO,
   GroupStatus,
@@ -42,7 +43,7 @@ export const getGroupStatus = (group: GroupDocument) => {
   return GroupStatus.ABANDONED;
 };
 
-export const getGroupSlots = (group: GroupDocument) => {
+export const getGroupSlots = (group: Pick<GroupDocument, 'members' | 'collateralAmount' | 'totalMembers'>) => {
   let depositedCollaterals = 0;
   for (const member of Object.values(group.members || {})) {
     if (
@@ -56,11 +57,29 @@ export const getGroupSlots = (group: GroupDocument) => {
   return group.totalMembers - depositedCollaterals;
 };
 
+const isSuccessTransaction = (deposit: GroupMember['deposits'][number] | GroupMember['withdrawals'][string] | undefined, amount: number) => {
+  return !!deposit?.amount && +deposit?.amount === +amount && !!deposit?.timestamp && !!deposit?.transactionSignature;
+};
+
 export const toGroupResponseDTO = (
   group: GroupDocument,
   customerPublicKey: string,
 ): GroupResponseDTO => {
   const me = group.members?.[customerPublicKey];
+  
+  const countSuccessDeposits: { [key: number]: number } = {};
+  let countSuccessRounds = 0;
+  for (const member of Object.values(group.members || {})) {
+    for (const deposit of Object.values(member.deposits || {})) {
+      if (isSuccessTransaction(deposit, +deposit.round === 0 ? group.amount * group.totalMembers : group.amount)) {
+        countSuccessDeposits[deposit.round] = (countSuccessDeposits[deposit.round] ?? 0) + 1;
+      }
+    }
+  }
+  
+  for (let i = 0; i <= group.totalMembers; i++) {
+    countSuccessRounds += +(countSuccessDeposits[i] === group.totalMembers - (i === 0 ? 0 : 1));
+  }
   
   const myDeposits: GroupResponseDTO['myDeposits'] = {};
   for (const deposit of Object.values(me?.deposits || {})) {
@@ -74,25 +93,23 @@ export const toGroupResponseDTO = (
       timestamp: deposit.timestamp,
     };
   }
+  console.log(countSuccessDeposits, { countSuccessRounds }, me);
   
   const myWithdrawals: GroupResponseDTO['myWithdrawals'] = {
     [GroupWithdrawalType.COLLATERAL]: {
       amount: me?.withdrawals?.collateral?.amount ?? 0,
       type: GroupWithdrawalType.COLLATERAL,
       timestamp: me?.withdrawals?.collateral?.timestamp ?? 0,
-      successfullyWithdrawn:
-        me?.withdrawals?.collateral?.amount === group.collateralAmount &&
-        !!me?.withdrawals?.collateral?.timestamp &&
-        !!me?.withdrawals?.collateral?.transactionSignature,
+      successfullyWithdrawn: isSuccessTransaction(me?.withdrawals?.collateral, group.collateralAmount),
+      enabled: countSuccessRounds === group.totalMembers + 1,
     },
     [GroupWithdrawalType.ROUND]: {
       amount: me?.withdrawals?.round?.amount ?? 0,
       type: GroupWithdrawalType.ROUND,
       timestamp: me?.withdrawals?.round?.timestamp ?? 0,
-      successfullyWithdrawn:
-        me?.withdrawals?.round?.amount === group.amount &&
-        !!me?.withdrawals?.round?.timestamp &&
-        !!me?.withdrawals?.round?.transactionSignature,
+      successfullyWithdrawn: isSuccessTransaction(me?.withdrawals?.round, group.amount),
+      enabled: // group.myPosition <= group.currentPosition &&
+        countSuccessDeposits[me?.position || 0] === group.totalMembers - 1,
     },
     [GroupWithdrawalType.INTEREST]: {
       amount: me?.withdrawals?.interest?.amount ?? 0,
@@ -101,6 +118,7 @@ export const toGroupResponseDTO = (
       successfullyWithdrawn:
         !!me?.withdrawals?.interest?.timestamp &&
         !!me?.withdrawals?.interest?.transactionSignature,
+      enabled: countSuccessRounds === group.totalMembers + 1,
     },
   };
   

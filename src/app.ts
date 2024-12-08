@@ -5,7 +5,7 @@ import apiV1Router from 'app/route';
 import bodyParser from 'body-parser';
 import express from 'express';
 import { finishSetupApp, initialSetupApp } from 'helpers';
-import { errorLoggerHandler, errorResponderHandler, failSafeHandler, notFoundResponse } from 'middlewares';
+import { errorLoggerHandler, errorResponderHandler, failSafeHandler, notFoundResponse, setCompany } from 'middlewares';
 import { dbClient } from 'services/database';
 
 const mainHandler = async (upCounter: number) => {
@@ -29,7 +29,8 @@ const mainHandler = async (upCounter: number) => {
     app.use(failSafeHandler);
     
     app.use('/vaquita/api/v1', apiV1Router);
-    app.use('/vaquita/api/v1/group', apiV1GroupRouter);
+    // @ts-ignore
+    app.use('/vaquita/api/v1/group', setCompany(), apiV1GroupRouter);
     
     app.use(notFoundResponse);
   } catch (error) {
