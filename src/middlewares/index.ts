@@ -2,7 +2,7 @@ import { JkResponse } from '@juki-team/base-back';
 import { LogLevel } from '@juki-team/commons';
 import { COMPANY_HOSTS } from 'config/settings';
 import { NextFunction } from 'express';
-import { logError } from 'helpers';
+import { log } from 'helpers';
 import { JkRequest } from 'types';
 
 export {
@@ -37,7 +37,7 @@ export function setCompany() {
       }
       
     } catch (error) {
-      logError(LogLevel.INFO)(error, 'Error on setCompany');
+      log(LogLevel.ERROR)('Error on setCompany', { error });
     }
     next();
   };

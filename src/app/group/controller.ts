@@ -271,10 +271,7 @@ export const postDisjoinGroup = async (req: JkRequest<{ id: string }>, res: JkRe
   const group = await getGroup(req.company.id, groupId);
   if (group.members[customerPublicKey]) {
     const newMembers: GroupBaseDocument['members'] = { ...group.members };
-    const memberPositions = [
-      newMembers[customerPublicKey].position,
-      ...group.memberPositions,
-    ];
+    const memberPositions = [ newMembers[customerPublicKey].position, ...group.memberPositions ].filter((position) => !!position);
     delete newMembers[customerPublicKey];
     await updateGroup(groupId, {
       members: newMembers,
@@ -299,7 +296,9 @@ export const postJoinGroup = async (req: JkRequest<{ id: string }>, res: JkRespo
   
   const group = await getGroup(req.company.id, groupId);
   const memberPositions = [ ...group.memberPositions ];
-  
+  if (!memberPositions.length) {
+    throw new Error('there are no free slots in the group');
+  }
   const position = memberPositions.pop() as number;
   const newMembers: GroupBaseDocument['members'] = {
     ...group.members,

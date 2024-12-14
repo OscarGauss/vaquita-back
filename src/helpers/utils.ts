@@ -2,7 +2,7 @@ import { ClassConstructor, classToPlain, plainToClass } from 'class-transformer'
 import { validate, ValidationError } from 'class-validator';
 import { DEFAULT_PAGE, DEFAULT_SIZE, ERROR } from 'config/constants';
 import { ErrorCode, JkError, JkRequest, JkResponse, LogLevel, NextFunction, Request, SortType } from 'types';
-import { logError, toJkError } from './commons';
+import { log, toJkError } from './commons';
 
 export const validatePaginated = (req: Request) => {
   const { pageSize: _size = DEFAULT_SIZE, page: _page = DEFAULT_PAGE } = req.query;
@@ -21,7 +21,7 @@ export const safeResponse = <T = {}>(callback: (req: JkRequest<T>, res: JkRespon
   try {
     await callback(req as JkRequest<T>, res, next);
   } catch (error) {
-    logError(LogLevel.INFO)(error, '');
+    log(LogLevel.ERROR)('safeResponse', { error });
     return res.sendError(toJkError(error));
   }
 };

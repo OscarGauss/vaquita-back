@@ -1,7 +1,7 @@
 import { isObjectJson } from '@juki-team/commons';
 import { EntityLog, EntityLogChanges } from '@juki-team/commons/dist/types/types/entity';
 import { MONGO_DATABASE_NAME, MONGO_DATABASE_URI } from 'config/settings';
-import { logError, logMessage } from 'helpers';
+import { log } from 'helpers';
 import { atomizeChangeset, diff } from 'json-diff-ts';
 import { Db, Document, MatchKeysAndValues, MongoClient, ObjectId, OptionalUnlessRequiredId, Sort } from 'mongodb';
 import objectSizeOf from 'object-sizeof';
@@ -33,16 +33,16 @@ export class MongoDbClient {
   
   async connect() {
     if (!this.mongoDatabaseClient) {
-      logMessage(LogLevel.INFO)(`mongo client connecting...`);
+      log(LogLevel.INFO)(`mongo client connecting...`);
       const mongoClient = await MongoClient.connect(MONGO_DATABASE_URI);
       await mongoClient.connect();
       this.mongoDatabaseClient = mongoClient.db(MONGO_DATABASE_NAME);
-      logMessage(LogLevel.INFO)(`mongo client connected`);
+      log(LogLevel.INFO)(`mongo client connected`);
       for (const cb of this.reconnectionCbs) {
         cb?.();
       }
     } else {
-      logMessage(LogLevel.INFO)(`mongo client already connected`);
+      log(LogLevel.INFO)(`mongo client already connected`);
     }
   }
   
@@ -57,7 +57,7 @@ export class MongoDbClient {
     
     const connect = () => {
       mongoCollection = this.mongoDatabaseClient?.collection<EntityDoc>(collection)!;
-      logMessage(LogLevel.INFO)(`collection "${collection}"connected`);
+      log(LogLevel.INFO)(`collection "${collection}"connected`);
     };
     
     this.reconnectionCbs.push(connect);
@@ -128,7 +128,7 @@ export class MongoDbClient {
         } as OptionalUnlessRequiredId<EntityDoc>;
         const newDocument = await mongoCollection.insertOne(documentToInsert);
         if (!newDocument) {
-          logError(LogLevel.INFO)(JSON.stringify({
+          log(LogLevel.INFO)(JSON.stringify({
             collection, /*company, */
             customer,
             document,
@@ -143,7 +143,7 @@ export class MongoDbClient {
         const { projection } = options || {};
         const document = await mongoCollection.findOne({ _id: new ObjectId(documentId) } as Filter<EntityDoc>, { projection });
         if (!document) {
-          logError(LogLevel.INFO)(JSON.stringify({ collection, documentId }), 'error on findOne');
+          log(LogLevel.INFO)(JSON.stringify({ collection, documentId }), 'error on findOne');
           throw new JkError(ErrorCode.ERR0211, { message: 'not found' });
         }
         return document as EntityDoc;
@@ -155,7 +155,7 @@ export class MongoDbClient {
         const { projection, sort } = options || {};
         const document = await mongoCollection.findOne(filter, { projection, sort });
         if (!document) {
-          logError(LogLevel.INFO)(JSON.stringify({ collection, filter }), 'error on findOneByFilter');
+          log(LogLevel.INFO)(JSON.stringify({ collection, filter }), 'error on findOneByFilter');
           throw new JkError(ErrorCode.ERR0211, { message: 'not found' });
         }
         return document as EntityDoc;
@@ -167,7 +167,7 @@ export class MongoDbClient {
         const { projection, sort } = options || {};
         const document = await mongoCollection.find(filter, { projection, sort }).toArray();
         if (!document) {
-          logError(LogLevel.INFO)(JSON.stringify({ collection, filter, options }), 'error on findByFilter');
+          log(LogLevel.INFO)(JSON.stringify({ collection, filter, options }), 'error on findByFilter');
           throw new JkError(ErrorCode.ERR0211, { message: 'not found' });
         }
         return document as EntityDoc[];

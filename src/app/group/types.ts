@@ -102,6 +102,7 @@ export interface GroupResponseDTO {
   };
   totalMembers: number;
   slots: number;
+  joinedUsers: number;
   period: GroupPeriod;
   currentPosition: number;
   myPosition: number;

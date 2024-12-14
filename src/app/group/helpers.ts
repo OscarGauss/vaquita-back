@@ -11,6 +11,7 @@ import { addMonths, addWeeks } from 'date-fns';
 
 export const getGroupStatus = (group: GroupDocument, myWithdrawals: GroupResponseDTO['myWithdrawals'], customerPublicKey: string) => {
   let depositedCollaterals = 0;
+  let joinedUsers = 0;
   for (const member of Object.values(group.members || {})) {
     if (
       member.deposits?.[0]?.round === 0 &&
@@ -18,6 +19,7 @@ export const getGroupStatus = (group: GroupDocument, myWithdrawals: GroupRespons
     ) {
       depositedCollaterals++;
     }
+    joinedUsers++;
   }
   if (depositedCollaterals < group.totalMembers) {
     // pending, abandoned
@@ -150,6 +152,7 @@ export const toGroupResponseDTO = (
     myWithdrawals,
     totalMembers: group.totalMembers,
     slots: getGroupSlots(group),
+    joinedUsers: Object.values(group.members || {}).length,
     period: group.period,
     startsOnTimestamp: group.startsOnTimestamp,
     status: getGroupStatus(group, myWithdrawals, customerPublicKey),

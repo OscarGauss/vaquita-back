@@ -1,4 +1,4 @@
-import { logError } from 'helpers';
+import { log } from 'helpers';
 import { Filter, Sort } from 'mongodb';
 import { dbClient } from 'services';
 import { CreateEntityDocument, ErrorCode, JkError, LogLevel, UpdateEntityDocument } from 'types';
@@ -22,7 +22,7 @@ export const createGroup = async (
 export const getGroup = async (companyId: string, id: string): Promise<GroupDocument> => {
   const group = await findOne(id);
   if (group.companyId !== companyId) {
-    logError(LogLevel.INFO)(JSON.stringify({ groupId: id, companyId }), 'error on getGroupData');
+    log(LogLevel.INFO)(JSON.stringify({ groupId: id, companyId }), 'error on getGroupData');
     throw new JkError(ErrorCode.ERR0211, { message: 'not found' });
   }
   return group;
