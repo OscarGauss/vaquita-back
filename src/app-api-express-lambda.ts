@@ -1,8 +1,7 @@
-// lambda.js
+import serverlessExpress from '@codegenie/serverless-express';
 import apiV1GroupRouter from 'app/group/route';
 import apiV1Router from 'app/route';
 import type { APIGatewayEvent, Context } from 'aws-lambda';
-import awsServerlessExpress from 'aws-serverless-express';
 import bodyParser from 'body-parser';
 import express from 'express';
 import { initialSetupApp, log } from 'helpers';
@@ -27,22 +26,37 @@ app.use(errorLoggerHandler);
 app.use(errorResponderHandler);
 app.use(failSafeHandler);
 
-app.use('/v2/vaquita', apiV1Router);
+app.use('/', apiV1Router);
 // @ts-ignore
-app.use('/v2/vaquita/group', setCompany(), apiV1GroupRouter);
+app.use('/group', setCompany(), apiV1GroupRouter);
 
 app.use(notFoundResponse);
 
-export const handler = async (event: APIGatewayEvent, context: Context) => {
-  log(LogLevel.INFO)('event', { event });
-  
+let serverlessExpressInstance: any;
+
+async function asyncTask() {
   try {
     await dbClient.connect();
-    
   } catch (error) {
     log(LogLevel.ERROR)('error', error);
   }
+}
+
+async function setup(event: APIGatewayEvent, context: Context) {
+  await asyncTask();
+  serverlessExpressInstance = serverlessExpress({ app });
+  return serverlessExpressInstance(event, context);
+}
+
+function handler(event: APIGatewayEvent, context: Context) {
   
-  const server = awsServerlessExpress.createServer(app);
-  return awsServerlessExpress.proxy(server, event, context);
-};
+  log(LogLevel.INFO)('event', { event });
+  
+  if (serverlessExpressInstance) {
+    return serverlessExpressInstance(event, context);
+  }
+  
+  return setup(event, context);
+}
+
+exports.handler = handler;
