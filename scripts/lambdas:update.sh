@@ -5,7 +5,7 @@ build_lambda() {
   local BUILD_FOLDER="./tmp-folder-build-$NAME_LAMBDA"
 
   echo "    1 preparing folder \"$BUILD_FOLDER\"..."
-  rm -rf $BUILD_FOLDER && mkdir  $BUILD_FOLDER && cp -r src $BUILD_FOLDER && mv $BUILD_FOLDER/src/app-$NAME_LAMBDA-lambda.ts $BUILD_FOLDER/src/app.ts && cp config/rollup-lambda.config.mjs package.json tsconfig.json lambda-api.d.ts $BUILD_FOLDER && mkdir -p builds/$VERSION && cd $BUILD_FOLDER
+  rm -rf $BUILD_FOLDER && mkdir  $BUILD_FOLDER && cp -r src $BUILD_FOLDER && mv $BUILD_FOLDER/src/app-$NAME_LAMBDA-lambda.ts $BUILD_FOLDER/src/app.ts && cp config/rollup-lambda.config.mjs package.json tsconfig.json $BUILD_FOLDER && mkdir -p builds/$VERSION && cd $BUILD_FOLDER
   [ $? -eq 0 ] && echo -e "\033[F\033[K    1 prepared folder \"$BUILD_FOLDER\": ✔" || { return 1; }
 
   echo "    2 compiling..."
