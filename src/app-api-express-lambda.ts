@@ -13,7 +13,7 @@ export const handler = async (event: APIGatewayEvent, context: Context) => {
   const app = initialSetupApp();
   
   try {
-    
+    console.log({ event });
     await dbClient.connect();
     
     finishSetupApp(app);
