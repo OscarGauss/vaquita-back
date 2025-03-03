@@ -1,10 +1,10 @@
 import { isObjectJson } from '@juki-team/commons';
 import { EntityLog, EntityLogChanges } from '@juki-team/commons/dist/types/types/entity';
 import { MONGO_DATABASE_NAME, MONGO_DATABASE_URI } from 'config/settings';
-import { log } from 'helpers';
 import { atomizeChangeset, diff } from 'json-diff-ts';
 import { Db, Document, MatchKeysAndValues, MongoClient, ObjectId, OptionalUnlessRequiredId, Sort } from 'mongodb';
 import objectSizeOf from 'object-sizeof';
+import { log } from 'services/log';
 import {
   CreateEntityDocument,
   EntityDocument,

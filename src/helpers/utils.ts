@@ -1,8 +1,9 @@
 import { ClassConstructor, classToPlain, plainToClass } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 import { DEFAULT_PAGE, DEFAULT_SIZE, ERROR } from 'config/constants';
+import { log } from 'services/log';
 import { ErrorCode, JkError, JkRequest, JkResponse, LogLevel, NextFunction, Request, SortType } from 'types';
-import { log, toJkError } from './commons';
+import { toJkError } from './commons';
 
 export const validatePaginated = (req: Request) => {
   const { pageSize: _size = DEFAULT_SIZE, page: _page = DEFAULT_PAGE } = req.query;
@@ -17,9 +18,9 @@ export const validatePaginated = (req: Request) => {
   return { size, page };
 };
 
-export const safeResponse = <T = {}>(callback: (req: JkRequest<T>, res: JkResponse, next: NextFunction) => void) => async (req: Request<T>, res: JkResponse, next: NextFunction) => {
+export const safeResponse = <T extends Request['params'] = {}, U extends Request['query'] = {}>(callback: (req: JkRequest<T, U>, res: JkResponse, next: NextFunction) => void) => async (req: Request<T>, res: JkResponse, next: NextFunction) => {
   try {
-    await callback(req as JkRequest<T>, res, next);
+    await callback(req as JkRequest<T, U>, res, next);
   } catch (error) {
     log(LogLevel.ERROR)('safeResponse', { error });
     return res.sendError(toJkError(error));

@@ -1,12 +1,11 @@
 export { Document } from 'mongodb';
-export { NextFunction, Request, Response } from 'express';
 export { Filter, InsertOneResult, ObjectId, UpdateFilter, WithId } from 'mongodb';
-
+export type { NextFunction, Request, Response, API, HandlerFunction, Middleware } from 'lambda-api';
 export {
   NewEntityDocument, EntityState, ErrorCode, JkError, LogLevel, CreateEntityDocument, UpdateEntityDocument,
+  ContentsMetaType,
 } from '@juki-team/commons';
-
-export { JkResponse } from '@juki-team/base-back';
+export type { _Object as S3Object } from '@aws-sdk/client-s3';
 
 export type SortType = { [key: string]: -1 | 1 };
 

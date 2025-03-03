@@ -1,20 +1,4 @@
 export {
-  responseError,
-  initialSetupApp,
-  finishSetupApp,
-  readFile,
-  log,
-  writeFile,
-  removeFolder,
-  getFiles,
-  getRequestData,
-  shouldDisplayLog,
-  getStoppingLockFilePath,
-  getStoppedLockFilePath,
-  getRunningLockFilePath,
-} from '@juki-team/base-back';
-
-export {
   errorsResponse,
   isStringJson,
   contentResponse,
@@ -33,4 +17,5 @@ export {
   getSummaryWorksheetsInPages,
   consoleInfo,
   memorySizeOf,
+  chunkString,
 } from '@juki-team/commons';

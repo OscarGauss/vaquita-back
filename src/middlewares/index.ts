@@ -1,25 +1,20 @@
-import { JkResponse } from '@juki-team/base-back';
 import { LogLevel } from '@juki-team/commons';
 import { COMPANY_HOSTS } from 'config/settings';
 import { NextFunction } from 'express';
-import { log } from 'helpers';
-import { JkRequest } from 'types';
+import { log } from 'services/log';
+import { JkRequest, JkResponse, Request } from 'types';
 
-export {
-  loggerRequestTimeHandler,
-  errorLoggerHandler,
-  errorResponderHandler,
-  failSafeHandler,
-  notFoundResponse,
-} from '@juki-team/base-back';
+export * from './error';
+export * from './log';
+export * from './responses';
 
 export function setCompany() {
   return async (_req: Request, res: JkResponse, next: NextFunction) => {
-    const req = _req as unknown as JkRequest;
+    const req = _req as JkRequest;
     
     let referer, host = ''; //, domain, subdomain;
     try {
-      referer = req.header('Referer') as string;
+      referer = (req.headers['Referer'] || req.headers['referer']) as string;
       host = (referer?.split?.('/')?.[2] as string) || '';
       // domain = host.split('.').splice(-2).join('.');
       // subdomain = host.split('.').slice(0, -2).join('.');

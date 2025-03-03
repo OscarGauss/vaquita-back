@@ -143,7 +143,7 @@ export const toGroupResponseDTO = (
   const { currentPosition } = getPaymentsTable(response);
   
   return {
-    id: group._id.toString(),
+    id: BigInt(`0x${group._id.toString()}`).toString(),
     crypto: group.crypto,
     name: group.name,
     amount: group.amount,

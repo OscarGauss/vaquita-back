@@ -89,13 +89,21 @@ export const postCreateGroup = async (req: JkRequest, res: JkResponse, next: Nex
   ));
 };
 
-export const getAllGroups = async (req: JkRequest, res: JkResponse, next: NextFunction) => {
-  const status = req.query.status as GroupStatus | null;
-  const myGroups = req.query.myGroups as GroupStatus | null;
-  const period = req.query.period as GroupPeriod | null;
-  const crypto = req.query.crypto as GroupCrypto | null;
-  const amount = +(req.query.amount || 0) as number | null;
-  const customerPublicKey = req.query.customerPublicKey as string | '';
+export const getAllGroups = async (req: JkRequest<{}, {
+  status?: GroupStatus,
+  myGroups?: string,
+  period?: GroupPeriod,
+  crypto?: GroupCrypto,
+  amount?: string,
+  customerPublicKey?: string
+  orderBy?: string,
+}>, res: JkResponse, next: NextFunction) => {
+  const status = req.query.status;
+  const myGroups = !!req.query.myGroups;
+  const period = req.query.period;
+  const crypto = req.query.crypto;
+  const amount = +(req.query.amount || 0);
+  const customerPublicKey = req.query.customerPublicKey || '';
   const orderBy = req.query.orderBy;
   
   const filter: Filter<GroupDocument> = { state: EntityState.RELEASED };
@@ -159,9 +167,11 @@ export const getAllGroups = async (req: JkRequest, res: JkResponse, next: NextFu
   res.sendContents(contents, { page: 0, size: 0, sort: [], totalElements: contents.length });
 };
 
-export const getGroupData = async (req: JkRequest<{ id: string }>, res: JkResponse, next: NextFunction) => {
+export const getGroupData = async (req: JkRequest<{ id: string }, {
+  customerPublicKey?: string
+}>, res: JkResponse, next: NextFunction) => {
   const groupId = req.params.id;
-  const customerPublicKey = req.query.customerPublicKey as string | '';
+  const customerPublicKey = req.query.customerPublicKey || '';
   
   const group = await getGroup(req.company.id, groupId);
   

@@ -1,7 +1,7 @@
 require('dotenv').config();
 import { LogLevel } from '@juki-team/commons';
-import { log } from 'helpers';
 import { dbClient } from 'services/database';
+import { log } from 'services/log';
 
 (async () => {
   await dbClient.connect();

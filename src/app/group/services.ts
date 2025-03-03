@@ -1,6 +1,6 @@
-import { log } from 'helpers';
 import { Filter, Sort } from 'mongodb';
 import { dbClient } from 'services';
+import { log } from 'services/log';
 import { CreateEntityDocument, ErrorCode, JkError, LogLevel, UpdateEntityDocument } from 'types';
 import { GroupBaseDocument, GroupDocument } from './types';
 

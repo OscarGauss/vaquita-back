@@ -1,80 +1,60 @@
-import serverlessExpress from '@codegenie/serverless-express';
-import { loggerAllRequestHandler, loggerRequestTimeHandler, responsesMiddleware } from '@juki-team/base-back';
 import apiV1GroupRouter from 'app/group/route';
 import apiV1Router from 'app/route';
 import type { APIGatewayEvent, Context } from 'aws-lambda';
-import bodyParser from 'body-parser';
 import { NODE_ENV, ORIGINS, VERSION } from 'config/settings';
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
-import express from 'express';
-import { log, shouldDisplayLog } from 'helpers';
-import { errorLoggerHandler, errorResponderHandler, failSafeHandler, notFoundResponse, setCompany } from 'middlewares';
+import { logApiLambdaHandler, shouldDisplayLog } from 'helpers';
+import createAPI from 'lambda-api';
+import {
+  errorLoggerHandler,
+  failSafeHandler,
+  loggerAllRequestHandler,
+  loggerRequestTimeHandler,
+  notFoundResponse,
+  responsesMiddleware,
+  setCompany,
+} from 'middlewares';
 import { dbClient } from 'services';
+import { log, logService } from 'services/log';
 import { LogLevel } from 'types';
 
+const runtimeId = process.env.AWS_LAMBDA_LOG_STREAM_NAME?.split(']').pop() || '-';
+logService.setHeader(`API express lambda Vaquita (${runtimeId})`);
+const upDate = new Date();
+log(LogLevel.INFO)(`API express lambda Vaquita starting at: ${upDate.toLocaleDateString()} ${upDate.toLocaleTimeString()}`);
+
+const api = createAPI({ version: 'v2.0', base: 'v2/vaquita' });
+
 log(LogLevel.INFO)('starting initial express set up', { NODE_ENV, VERSION, ORIGINS });
-const app = express();
-app.disable('x-powered-by');
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
 if (shouldDisplayLog(LogLevel.DEBUG)) {
-  app.use(loggerAllRequestHandler);
+  api.use(loggerAllRequestHandler);
 } else if (shouldDisplayLog(LogLevel.INFO)) {
-  app.use(loggerRequestTimeHandler);
+  api.use(loggerRequestTimeHandler);
 }
 
-app.use(responsesMiddleware);
-app.use(cors({ origin: ORIGINS, credentials: true }));
-app.use(cookieParser());
+api.use(responsesMiddleware);
 log(LogLevel.INFO)('completed express set up');
 log(LogLevel.INFO)('starting finish express set up');
-app.use(errorLoggerHandler);
-app.use(errorResponderHandler);
-app.use(failSafeHandler);
+api.use(errorLoggerHandler);
+api.use(failSafeHandler);
 log(LogLevel.INFO)('completed finish express set up');
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(bodyParser.urlencoded({
-  extended: true,
-}));
+api.use(apiV1Router, { prefix: '/' });
+api.use(setCompany(), apiV1GroupRouter, { prefix: '/group' });
+api.use(notFoundResponse);
 
-app.use(errorLoggerHandler);
-app.use(errorResponderHandler);
-app.use(failSafeHandler);
-
-app.use('/', apiV1Router);
-// @ts-ignore
-app.use('/group', setCompany(), apiV1GroupRouter);
-
-app.use(notFoundResponse);
-
-let serverlessExpressInstance: any;
-
-async function asyncTask() {
-  try {
-    await dbClient.connect();
-  } catch (error) {
-    log(LogLevel.ERROR)('error', error);
-  }
+if (shouldDisplayLog(LogLevel.DEBUG)) {
+  api.routes(true);
 }
 
-async function setup(event: APIGatewayEvent, context: Context) {
-  await asyncTask();
-  serverlessExpressInstance = serverlessExpress({ app });
-  return serverlessExpressInstance(event, context);
-}
+log(LogLevel.INFO)('completed finish express set up');
 
-function handler(event: APIGatewayEvent, context: Context) {
-  
-  log(LogLevel.INFO)('event', { event });
-  
-  if (serverlessExpressInstance) {
-    return serverlessExpressInstance(event, context);
-  }
-  
-  return setup(event, context);
-}
+void dbClient.connect();
+
+export const handler = async (event: APIGatewayEvent, context: Context) => {
+  return await logApiLambdaHandler(event, context, 'api express lambda vaquita', upDate, async () => {
+    
+    return await api.run(event, context);
+  });
+};
 
 exports.handler = handler;
