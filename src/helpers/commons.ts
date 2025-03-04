@@ -18,4 +18,5 @@ export {
   consoleInfo,
   memorySizeOf,
   chunkString,
+  isObjectJson,
 } from '@juki-team/commons';

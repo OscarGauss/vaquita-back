@@ -13,7 +13,7 @@ import {
   responsesMiddleware,
   setCompany,
 } from 'middlewares';
-import { dbClient } from 'services';
+import { dbClientConnect } from 'services/database';
 import { log, logService } from 'services/log';
 import { LogLevel } from 'types';
 
@@ -38,8 +38,14 @@ api.use(errorLoggerHandler);
 api.use(failSafeHandler);
 log(LogLevel.INFO)('completed finish express set up');
 
-api.use(apiV1Router, { prefix: '/' });
-api.use(setCompany(), apiV1GroupRouter, { prefix: '/group' });
+const routes = [
+  '/group', '/group/*',
+];
+api.use(routes, setCompany());
+
+api.register(apiV1Router, { prefix: '/' });
+api.register(apiV1GroupRouter, { prefix: '/group' });
+
 api.use(notFoundResponse);
 
 if (shouldDisplayLog(LogLevel.DEBUG)) {
@@ -48,11 +54,10 @@ if (shouldDisplayLog(LogLevel.DEBUG)) {
 
 log(LogLevel.INFO)('completed finish express set up');
 
-void dbClient.connect();
+void dbClientConnect();
 
 export const handler = async (event: APIGatewayEvent, context: Context) => {
   return await logApiLambdaHandler(event, context, 'api express lambda vaquita', upDate, async () => {
-    
     return await api.run(event, context);
   });
 };

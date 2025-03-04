@@ -1,1 +1,1 @@
-export { dbClient } from './dbClient';
+export { dbCrud, dbClientConnect } from './client';

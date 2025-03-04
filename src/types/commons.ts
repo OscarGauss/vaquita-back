@@ -4,6 +4,8 @@ export type { NextFunction, Request, Response, API, HandlerFunction, Middleware 
 export {
   NewEntityDocument, EntityState, ErrorCode, JkError, LogLevel, CreateEntityDocument, UpdateEntityDocument,
   ContentsMetaType,
+  EntityLog,
+  EntityLogChanges,
 } from '@juki-team/commons';
 export type { _Object as S3Object } from '@aws-sdk/client-s3';
 

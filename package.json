@@ -13,6 +13,7 @@
     "build:api-service-v1": "bash -x ./scripts/build-api-service.sh && yarn push",
     "build:api-service-v": "bash -x ./scripts/build-api-service.sh",
     "build:api-service": "yarn version --patch && yarn build:api-service-v",
+    "lambdas:update-apps-v": "f() { yarn build && bash scripts/lambdas:update.sh; }; f",
     "lambdas:update-apps": "f() { yarn build && yarn git-push \"${1}\" && bash scripts/lambdas:update.sh; }; f",
     "mig": "ts-node -r tsconfig-paths/register src/migrations/index.ts",
     "sed": "ts-node -r tsconfig-paths/register src/seeders/index.ts",

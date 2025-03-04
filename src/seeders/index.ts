@@ -1,9 +1,9 @@
 require('dotenv').config();
 import { LogLevel } from '@juki-team/commons';
-import { dbClient } from 'services/database';
+import { dbClientConnect } from 'services/database';
 import { log } from 'services/log';
 
 (async () => {
-  await dbClient.connect();
+  await dbClientConnect();
   log(LogLevel.INFO)(`mongo client connected`);
 })();

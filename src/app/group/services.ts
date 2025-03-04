@@ -1,11 +1,10 @@
 import { Filter, Sort } from 'mongodb';
-import { dbClient } from 'services';
+import { dbCrud } from 'services/database';
 import { log } from 'services/log';
 import { CreateEntityDocument, ErrorCode, JkError, LogLevel, UpdateEntityDocument } from 'types';
 import { GroupBaseDocument, GroupDocument } from './types';
 
-const { findByFilter, insertOne, findOne, updateOne, deleteOne } =
-  dbClient.crud<GroupBaseDocument>('group');
+const { findOne, insertOne, deleteOne, updateOne, findByFilter } = dbCrud<GroupBaseDocument>('group');
 
 export const getGroups = async (
   companyId: string,
@@ -16,7 +15,7 @@ export const getGroups = async (
 export const createGroup = async (
   contest: CreateEntityDocument<GroupBaseDocument>,
 ) => {
-  return await insertOne(null, contest);
+  return await insertOne(null, null, contest);
 };
 
 export const getGroup = async (companyId: string, id: string): Promise<GroupDocument> => {

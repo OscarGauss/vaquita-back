@@ -95,6 +95,8 @@ export const getAllGroups = async (req: JkRequest<{}, {
   period?: GroupPeriod,
   crypto?: GroupCrypto,
   amount?: string,
+  minAmount?: string,
+  maxAmount?: string,
   customerPublicKey?: string
   orderBy?: string,
 }>, res: JkResponse, next: NextFunction) => {
@@ -103,6 +105,8 @@ export const getAllGroups = async (req: JkRequest<{}, {
   const period = req.query.period;
   const crypto = req.query.crypto;
   const amount = +(req.query.amount || 0);
+  const minAmount = +(req.query.minAmount ?? NaN);
+  const maxAmount = +(req.query.maxAmount ?? NaN);
   const customerPublicKey = req.query.customerPublicKey || '';
   const orderBy = req.query.orderBy;
   
@@ -116,7 +120,10 @@ export const getAllGroups = async (req: JkRequest<{}, {
   }
   if (amount) {
     filter.amount = amount;
+  } else if (!Number.isNaN(minAmount) && !Number.isNaN(maxAmount)) {
+    filter.amount = { $gte: minAmount, $lte: maxAmount };
   }
+  
   if (customerPublicKey) {
     if (myGroups) {
       filter[`members.${customerPublicKey}`] = { $exists: true };
@@ -132,6 +139,12 @@ export const getAllGroups = async (req: JkRequest<{}, {
       break;
     case '-amount':
       sort.amount = -1;
+      break;
+    case '+period':
+      sort.period = 1;
+      break;
+    case '-period':
+      sort.period = -1;
       break;
     case '+date':
       sort.startsOnTimestamp = 1;
