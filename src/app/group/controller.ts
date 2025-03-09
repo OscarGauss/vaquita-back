@@ -1,6 +1,6 @@
-import { UpdateEntityDocument } from '@juki-team/commons';
+import { ErrorCode } from '@juki-team/commons';
 import { Filter, Sort } from 'mongodb';
-import { EntityState, JkRequest, JkResponse, NextFunction } from 'types';
+import { EntityState, JkError, JkRequest, JkResponse, NextFunction, UpdateEntityDocument } from 'types';
 import { getGroupSlots, toGroupResponseDTO } from './helpers';
 import { createGroup, deleteGroup, getGroup, getGroups, updateGroup } from './services';
 import {
@@ -428,4 +428,8 @@ export const __setTimestampGroup = async (req: JkRequest<{ id: string }>, res: J
   const groupId = req.params.id;
   await updateGroup(groupId, { startsOnTimestamp: req.body.startsOnTimestamp });
   res.sendContent('ok');
+};
+
+export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkResponse, next: NextFunction) => {
+  res.sendError(new JkError(ErrorCode.ERR500, { message: 'unprocessed' }));
 };
