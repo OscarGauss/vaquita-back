@@ -24,7 +24,7 @@ export default (api: API) => {
   api.post('/:id/disjoin', safeResponse(postDisjoinGroup));
   api.post('/:id/join', safeResponse(postJoinGroup));
   api.post('/:id/withdrawal', safeResponse(postWithdrawal));
-  api.post('/:id/set-position', safeResponse(postSetPosition));
+  api.post('/set-position', safeResponse(postSetPosition));
   
   api.post('/:id/set-timestamp', safeResponse(__setTimestampGroup));
 }
