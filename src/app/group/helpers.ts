@@ -21,7 +21,9 @@ export const getGroupStatus = (group: GroupDocument, myWithdrawals: GroupRespons
     }
     joinedUsers++;
   }
-  if (depositedCollaterals < group.totalMembers) {
+  if (depositedCollaterals == 0) {
+    return GroupStatus.STARTING;
+  } else if (depositedCollaterals < group.totalMembers) {
     // pending, abandoned
     if (group.startsOnTimestamp >= Date.now()) {
       return GroupStatus.PENDING;

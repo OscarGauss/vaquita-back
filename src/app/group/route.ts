@@ -8,6 +8,7 @@ import {
   postCreateGroup,
   postDepositGroup,
   postDisjoinGroup,
+  postEnrollGroup,
   postJoinGroup,
   postSetPosition,
   postWithdrawal,
@@ -23,6 +24,7 @@ export default (api: API) => {
   api.post('/:id/deposit', safeResponse(postDepositGroup));
   api.post('/:id/disjoin', safeResponse(postDisjoinGroup));
   api.post('/:id/join', safeResponse(postJoinGroup));
+  api.post('/:id/enroll', safeResponse(postEnrollGroup));
   api.post('/:id/withdrawal', safeResponse(postWithdrawal));
   api.post('/set-position', safeResponse(postSetPosition));
   

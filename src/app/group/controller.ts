@@ -9,6 +9,7 @@ import {
   GroupCrypto,
   GroupDepositDTO,
   GroupDocument,
+  GroupEnrollDTO,
   GroupPeriod,
   GroupResponseDTO,
   GroupStatus,
@@ -46,12 +47,6 @@ export const postCreateGroup = async (req: JkRequest, res: JkResponse, next: Nex
   } = req.body as GroupCreateDTO;
   
   const collateralAmount = amount * totalMembers;
-  const memberPositions = [];
-  for (let i = 1; i <= totalMembers; i++) {
-    memberPositions.push(i);
-  }
-  shuffle(memberPositions);
-  const position = memberPositions.pop() as number;
   
   const companyId = req.company.id;
   const newGroup: GroupBaseDocument = {
@@ -63,20 +58,13 @@ export const postCreateGroup = async (req: JkRequest, res: JkResponse, next: Nex
     totalMembers,
     period,
     startsOnTimestamp,
-    memberPositions: [ ...memberPositions ],
+    memberPositions: [],
     members: {
       [customerPublicKey]: {
-        position,
+        position: -1,
         publicKey: customerPublicKey,
         isOwner: true,
-        deposits: {
-          // [0]: {
-          //   amount: collateral,
-          //   round: 0,
-          //   timestamp: now.getTime(),
-          //   transactionSignature,
-          // },
-        },
+        deposits: {},
         withdrawals: {},
       },
     },
@@ -337,6 +325,39 @@ export const postJoinGroup = async (req: JkRequest<{ id: string }>, res: JkRespo
   await updateGroup(groupId, {
     members: newMembers,
     memberPositions: [ ...memberPositions ],
+  });
+  
+  const groupUpdated = await getGroup(req.company.id, groupId);
+  const content: GroupResponseDTO = toGroupResponseDTO(
+    groupUpdated,
+    customerPublicKey,
+  );
+  
+  res.sendContent(content);
+};
+
+export const postEnrollGroup = async (req: JkRequest<{ id: string }>, res: JkResponse, next: NextFunction) => {
+  const groupId = req.params.id;
+  const { customerPublicKey, playerAddedDataLog } = req.body as GroupEnrollDTO;
+  
+  const log = playerAddedDataLog.replace('0x', '');
+  const secondPart = log.slice(log.length / 2);
+  const position = parseInt('0x' + secondPart, 16);
+  
+  const group = await getGroup(req.company.id, groupId);
+  const newMembers: GroupBaseDocument['members'] = {
+    ...group.members,
+    [customerPublicKey]: {
+      publicKey: customerPublicKey,
+      isOwner: false,
+      position,
+      deposits: {},
+      withdrawals: {},
+    },
+  };
+  
+  await updateGroup(groupId, {
+    members: newMembers,
   });
   
   const groupUpdated = await getGroup(req.company.id, groupId);

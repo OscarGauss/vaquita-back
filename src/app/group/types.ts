@@ -1,6 +1,7 @@
 import { EntityDocument } from 'types';
 
 export enum GroupStatus {
+  STARTING = 'starting',
   PENDING = 'pending',
   ACTIVE = 'active',
   CONCLUDED = 'concluded',
@@ -71,6 +72,11 @@ export interface GroupDepositDTO {
   transactionSignature: string;
   round: number;
   amount: number;
+}
+
+export interface GroupEnrollDTO {
+  customerPublicKey: string;
+  playerAddedDataLog: string;
 }
 
 export enum GroupWithdrawalType {
