@@ -21,7 +21,6 @@ export enum GroupPeriod {
 
 export interface GroupMember {
   publicKey: string;
-  isOwner: boolean;
   position: number;
   deposits: {
     [key: number]: {
@@ -52,6 +51,7 @@ export interface GroupBaseDocument {
   period: GroupPeriod;
   startsOnTimestamp: number;
   memberPositions: number[];
+  ownerPublicKey: string;
 }
 
 export interface GroupCreateDTO

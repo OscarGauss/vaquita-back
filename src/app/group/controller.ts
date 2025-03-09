@@ -59,15 +59,8 @@ export const postCreateGroup = async (req: JkRequest, res: JkResponse, next: Nex
     period,
     startsOnTimestamp,
     memberPositions: [],
-    members: {
-      [customerPublicKey]: {
-        position: -1,
-        publicKey: customerPublicKey,
-        isOwner: true,
-        deposits: {},
-        withdrawals: {},
-      },
-    },
+    ownerPublicKey: customerPublicKey,
+    members: {},
   };
   
   const result = await createGroup(newGroup);
@@ -220,7 +213,6 @@ export const postDepositGroup = async (req: JkRequest<{ id: string }>, res: JkRe
         ...group.members,
         [customerPublicKey]: {
           publicKey: customerPublicKey,
-          isOwner: false,
           position,
           deposits: {
             [round]: {
@@ -315,7 +307,6 @@ export const postJoinGroup = async (req: JkRequest<{ id: string }>, res: JkRespo
     ...group.members,
     [customerPublicKey]: {
       publicKey: customerPublicKey,
-      isOwner: false,
       position,
       deposits: {},
       withdrawals: {},
@@ -349,7 +340,6 @@ export const postEnrollGroup = async (req: JkRequest<{ id: string }>, res: JkRes
     ...group.members,
     [customerPublicKey]: {
       publicKey: customerPublicKey,
-      isOwner: false,
       position,
       deposits: {},
       withdrawals: {},

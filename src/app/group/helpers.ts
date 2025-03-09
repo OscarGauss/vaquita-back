@@ -158,7 +158,7 @@ export const toGroupResponseDTO = (
     period: group.period,
     startsOnTimestamp: group.startsOnTimestamp,
     status: getGroupStatus(group, myWithdrawals, customerPublicKey),
-    isOwner: !!group.members?.[customerPublicKey]?.isOwner,
+    isOwner: customerPublicKey === group.ownerPublicKey,
     myPosition: me?.position || 0,
     currentPosition,
   };
