@@ -141,7 +141,7 @@ export function dbCrud<T>(collection: string) {
         ...document,
         createdAt: now,
         updatedAt: now,
-        companyId: '', // company._id.toString(),
+        // companyId: '', // company._id.toString(),
         ownerUserId: '', // !!(customer?._id?.toString?.()) ? customer._id.toString() : company.systemAdminUserId,
         state: EntityState.RELEASED,
         logs: [],

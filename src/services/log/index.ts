@@ -11,14 +11,9 @@ logService.config(
   TELEGRAM_JUKI_ERROR_LOGS_CHAT_ID,
 );
 
-export const log = (logLevel: LogLevel) => (message: string, content?: any, reportAs?: 'info' | 'error') => {
+export const log = (logLevel: LogLevel) => (message: string, content?: any) => {
   if (shouldDisplayLog(logLevel)) {
     const title = `[${logLevel}] ${new Date().toISOString()}, ${message}`;
     console.info(`${title}${content ? ': ' + stringifyObject(content, 5) : ''} `);
-    if (reportAs === 'info') {
-      void logService.sendInfoMessage(title, content);
-    } else if (reportAs === 'error') {
-      void logService.sendErrorMessage(title, content);
-    }
   }
 };

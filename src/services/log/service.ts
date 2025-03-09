@@ -1,12 +1,11 @@
-import { chunkString, contentResponse } from 'helpers/commons';
+import { chunkString } from 'helpers/commons';
 import { shouldDisplayLog } from 'helpers/log';
 import { stringifyObject } from 'helpers/object';
 import { uploadTempPublicFile } from 'services/aws/s3';
-import { sqsFifoQueueInternetConnection } from 'services/aws/sqs';
-import { LogLevel, TelegramInternetConnectionEventDTO } from 'types';
-import { v4 } from 'uuid';
+import { jukiLogsBot } from 'services/telegram/juki-logs-bot';
+import { LogLevel } from 'types';
 
-const log = (logLevel: LogLevel) => (message: string, content?: any, reportAs?: 'info' | 'error') => {
+const log = (logLevel: LogLevel) => (message: string, content?: any) => {
   if (shouldDisplayLog(logLevel)) {
     const title = `[${logLevel}] ${new Date().toISOString()}, ${message}`;
     console.info(`${title}${content ? ': ' + stringifyObject(content, 5) : ''} `);
@@ -58,20 +57,8 @@ export class LogService {
       .split('!').join('\\!');
   }
   
-  sendMessage(markdownV2Text: string, chatId: string) {
-    const messageGroupId = v4();
-    return sqsFifoQueueInternetConnection.sendMessage({
-      content: contentResponse<TelegramInternetConnectionEventDTO>(
-        'ok',
-        {
-          type: 'TELEGRAM_MESSAGE',
-          chatId,
-          text: encodeURIComponent(markdownV2Text),
-        },
-      ),
-      messageGroupId,
-      messageDeduplicationId: messageGroupId,
-    });
+  async sendMessage(markdownV2Text: string, chatId: string) {
+    await jukiLogsBot.sendMessage(markdownV2Text, chatId);
   }
   
   getTitle(title: string) {

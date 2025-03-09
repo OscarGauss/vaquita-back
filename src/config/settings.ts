@@ -28,3 +28,4 @@ export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || '';
 export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || '';
 
 export const AWS_SQS_JUKI_CONNECTION_INTERNET_FIFO_URL = process.env.AWS_SQS_JUKI_CONNECTION_INTERNET_FIFO_URL || '';
+export const TELEGRAM_JUKI_LOGS_BOT_TOKEN = process.env.TELEGRAM_JUKI_LOGS_BOT_TOKEN || '';
