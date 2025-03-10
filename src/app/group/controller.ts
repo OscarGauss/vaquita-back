@@ -1,5 +1,6 @@
 import { ErrorCode } from '@juki-team/commons';
 import { Filter, Sort } from 'mongodb';
+import { logService } from 'services/log';
 import { EntityState, JkError, JkRequest, JkResponse, NextFunction, UpdateEntityDocument } from 'types';
 import { getGroupSlots, toGroupResponseDTO } from './helpers';
 import { createGroup, deleteGroup, getGroup, getGroups, updateGroup } from './services';
@@ -334,7 +335,12 @@ export const postEnrollGroup = async (req: JkRequest<{ id: string }>, res: JkRes
   const log = playerAddedDataLog.replace('0x', '');
   const secondPart = log.slice(log.length / 2);
   const position = parseInt('0x' + secondPart, 16) + 1;
-  
+  await logService.sendInfoMessage('postEnrollGroup', {
+    customerPublicKey,
+    playerAddedDataLog,
+    position,
+    secondPart,
+  }, true);
   const group = await getGroup(req.company.id, groupId);
   const newMembers: GroupBaseDocument['members'] = {
     ...group.members,
