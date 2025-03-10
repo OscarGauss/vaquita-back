@@ -21,6 +21,7 @@ export const getGroupStatus = (group: GroupDocument, myWithdrawals: GroupRespons
     }
     joinedUsers++;
   }
+  
   if (depositedCollaterals == 0) {
     return GroupStatus.STARTING;
   } else if (depositedCollaterals < group.totalMembers) {
@@ -41,6 +42,10 @@ export const getGroupStatus = (group: GroupDocument, myWithdrawals: GroupRespons
     
     if (group.startsOnTimestamp > Date.now() && !allWithdrawals) {
       return GroupStatus.PENDING;
+    }
+    
+    if (allWithdrawals) {
+      return GroupStatus.CONCLUDED;
     }
     
     if (endDate.getTime() > Date.now() && !allWithdrawals) {
