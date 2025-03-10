@@ -333,7 +333,7 @@ export const postEnrollGroup = async (req: JkRequest<{ id: string }>, res: JkRes
   
   const log = playerAddedDataLog.replace('0x', '');
   const secondPart = log.slice(log.length / 2);
-  const position = parseInt('0x' + secondPart, 16);
+  const position = parseInt('0x' + secondPart, 16) + 1;
   
   const group = await getGroup(req.company.id, groupId);
   const newMembers: GroupBaseDocument['members'] = {
