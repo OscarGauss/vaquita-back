@@ -65,6 +65,9 @@ export const postCreateGroup = async (req: JkRequest, res: JkResponse, next: Nex
   };
   
   const result = await createGroup(newGroup);
+  
+  await logService.sendInfoMessage('postCreateGroup', { newGroup, companyId });
+  
   res.sendContent(toGroupResponseDTO(
     await getGroup(companyId, result.insertedId.toString()),
     customerPublicKey,
@@ -184,7 +187,6 @@ export const postDepositGroup = async (req: JkRequest<{ id: string }>, res: JkRe
   const groupId = req.params.id;
   const { customerPublicKey, transactionSignature, round /*amount*/ } = req.body as GroupDepositDTO;
   
-  console.log(req.body);
   // TODO: validate amount
   
   const group = await getGroup(req.company.id, groupId);
@@ -262,6 +264,10 @@ export const postDepositGroup = async (req: JkRequest<{ id: string }>, res: JkRe
   
   await updateGroup(groupId, doc);
   
+  await logService.sendInfoMessage('postDepositGroup', {
+    customerPublicKey, transactionSignature, round, groupId,
+  });
+  
   res.sendContent('ok');
 };
 
@@ -335,12 +341,6 @@ export const postEnrollGroup = async (req: JkRequest<{ id: string }>, res: JkRes
   const log = playerAddedDataLog.replace('0x', '');
   const secondPart = log.slice(log.length / 2);
   const position = parseInt('0x' + secondPart, 16) + 1;
-  await logService.sendInfoMessage('postEnrollGroup', {
-    customerPublicKey,
-    playerAddedDataLog,
-    position,
-    secondPart,
-  }, true);
   const group = await getGroup(req.company.id, groupId);
   const newMembers: GroupBaseDocument['members'] = {
     ...group.members,
@@ -361,6 +361,14 @@ export const postEnrollGroup = async (req: JkRequest<{ id: string }>, res: JkRes
     groupUpdated,
     customerPublicKey,
   );
+  
+  await logService.sendInfoMessage('postEnrollGroup', {
+    customerPublicKey,
+    playerAddedDataLog,
+    position,
+    secondPart,
+    groupUpdated,
+  });
   
   res.sendContent(content);
 };
@@ -432,6 +440,10 @@ export const postWithdrawal = async (req: JkRequest<{ id: string }>, res: JkResp
   
   await updateGroup(groupId, { members: newMembers });
   
+  await logService.sendInfoMessage('postWithdrawal', {
+    customerPublicKey, transactionSignature, type, groupId,
+  });
+  
   res.sendContent('ok');
 };
 
@@ -448,5 +460,10 @@ export const __setTimestampGroup = async (req: JkRequest<{ id: string }>, res: J
 };
 
 export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkResponse, next: NextFunction) => {
+  
+  await logService.sendInfoMessage('postSetPosition', {
+    body: req.body, headers: req.headers, params: req.params,
+  });
+  
   res.sendError(new JkError(ErrorCode.ERR500, { message: 'unprocessed' }));
 };
