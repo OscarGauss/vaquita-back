@@ -46,7 +46,8 @@ export const logApiLambdaHandler = async <T, >(event: any, context: any, name: s
   return await logLambdaHandler(event, context, name, upDate, async (): Promise<APIGatewayProxyResult> => {
     log(LogLevel.DEBUG)('event', event);
     const origin = event.headers.origin;
-    if (!isOriginValid(origin)) {
+    const XAlchemySignature = event.headers['x-alchemy-signature'];
+    if (!isOriginValid(origin) && !XAlchemySignature) {
       log(LogLevel.WARN)(`not valid origin : ${origin}`);
       const response = {
         statusCode: 403,
@@ -58,7 +59,7 @@ export const logApiLambdaHandler = async <T, >(event: any, context: any, name: s
     
     const headers = {
       ['Access-Control-Allow-Credentials']: 'true',
-      ['Access-Control-Allow-Origin']: origin,
+      ['Access-Control-Allow-Origin']: XAlchemySignature ? '*' : origin,
       ['Access-Control-Allow-Methods']: event.httpMethod,
       ['Access-Control-Allow-Headers']: 'Content-Type, Authorization',
     };
