@@ -86,25 +86,3 @@ export const logApiLambdaHandler = async <T, >(event: any, context: any, name: s
     return response;
   }, onError);
 };
-
-export const logWebSocketLambdaHandler = async (event: any, context: any, name: string, upDate: Date, handler: (connectionId: string) => Promise<any>, onError?: (error: any) => void) => {
-  return await logLambdaHandler(event, context, name, upDate, async (): Promise<APIGatewayProxyResult> => {
-    
-    const connectionId = event?.requestContext?.connectionId as string;
-    
-    if (!connectionId) {
-      log(LogLevel.ERROR)(`unknown connectionId, connectionId: "${connectionId}"`);
-      return {
-        statusCode: 500,
-        body: JSON.stringify(errorsResponse('unknown connectionId')),
-      };
-    }
-    
-    const response = {
-      statusCode: 200,
-      ...(await handler(connectionId)),
-    };
-    log(LogLevel.DEBUG)('the following response was sent', response);
-    return response;
-  }, onError);
-};

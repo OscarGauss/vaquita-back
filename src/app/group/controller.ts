@@ -462,7 +462,7 @@ export const __setTimestampGroup = async (req: JkRequest<{ id: string }>, res: J
 // Only valid for ETH and alchemy webhook
 export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkResponse, next: NextFunction) => {
   
-  await logService.sendInfoMessage('postSetPosition', {
+  await logService.sendInfoMessage('postSetPosition start', {
     body: req.body, headers: req.headers, params: req.params,
   });
   
