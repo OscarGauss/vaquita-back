@@ -26,10 +26,12 @@ export const getGroupStatus = (group: GroupDocument, myWithdrawals: GroupRespons
     return GroupStatus.STARTING;
   } else if (depositedCollaterals < group.totalMembers) {
     // pending, abandoned
-    if (group.startsOnTimestamp >= Date.now()) {
-      return GroupStatus.PENDING;
-    }
-    return GroupStatus.ABANDONED;
+    // if (group.startsOnTimestamp >= Date.now()) {
+    //   return GroupStatus.PENDING;
+    // }
+    // return GroupStatus.ABANDONED;
+    
+    return GroupStatus.PENDING;
   } else if (depositedCollaterals === group.totalMembers) {
     // active, concluded
     const endDate =
