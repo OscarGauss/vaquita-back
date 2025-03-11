@@ -48,7 +48,7 @@ export const logApiLambdaHandler = async <T, >(event: any, context: any, name: s
     const origin = event.headers.origin;
     const XAlchemySignature = event.headers['X-Alchemy-Signature'] ?? event.headers['x-alchemy-signature'];
     if (!isOriginValid(origin) && !XAlchemySignature) {
-      log(LogLevel.WARN)(`not valid origin : ${origin}`);
+      log(LogLevel.WARN)(`not valid origin: "${origin}", XAlchemySignature: "${XAlchemySignature}"`);
       const response = {
         statusCode: 403,
         body: JSON.stringify(errorsResponse('unknown origin')),
