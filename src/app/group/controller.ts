@@ -83,6 +83,7 @@ export const getAllGroups = async (req: JkRequest<{}, {
   maxAmount?: string,
   customerPublicKey?: string
   orderBy?: string,
+  name?: string,
 }>, res: JkResponse, next: NextFunction) => {
   const status = req.query.status;
   const myGroups = !!req.query.myGroups;
@@ -92,6 +93,7 @@ export const getAllGroups = async (req: JkRequest<{}, {
   const minAmount = +(req.query.minAmount ?? NaN);
   const maxAmount = +(req.query.maxAmount ?? NaN);
   const customerPublicKey = req.query.customerPublicKey || '';
+  const name = req.query.name;
   const orderBy = req.query.orderBy;
   
   const filter: Filter<GroupDocument> = { state: EntityState.RELEASED };
@@ -107,7 +109,9 @@ export const getAllGroups = async (req: JkRequest<{}, {
   } else if (!Number.isNaN(minAmount) && !Number.isNaN(maxAmount)) {
     filter.amount = { $gte: minAmount, $lte: maxAmount };
   }
-  
+  if (name) {
+    filter.name = { $regex: name, $options: 'i' };
+  }
   if (customerPublicKey) {
     if (myGroups) {
       filter[`members.${customerPublicKey}`] = { $exists: true };
