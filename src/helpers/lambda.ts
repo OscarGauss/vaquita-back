@@ -46,7 +46,7 @@ export const logApiLambdaHandler = async <T, >(event: any, context: any, name: s
   return await logLambdaHandler(event, context, name, upDate, async (): Promise<APIGatewayProxyResult> => {
     log(LogLevel.DEBUG)('event', event);
     const origin = event.headers.origin;
-    const XAlchemySignature = event.headers['x-alchemy-signature'];
+    const XAlchemySignature = event.headers['X-Alchemy-Signature'] ?? event.headers['x-alchemy-signature'];
     if (!isOriginValid(origin) && !XAlchemySignature) {
       log(LogLevel.WARN)(`not valid origin : ${origin}`);
       const response = {
