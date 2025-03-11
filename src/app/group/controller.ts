@@ -1,4 +1,3 @@
-import { isStringJson } from 'helpers';
 import { Filter, Sort } from 'mongodb';
 import { logService } from 'services/log';
 import { EntityState, JkRequest, JkResponse, NextFunction, UpdateEntityDocument } from 'types';
@@ -466,18 +465,18 @@ export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkRes
     body: req.body, headers: req.headers, params: req.params,
   });
   
-  const decodedString = Buffer.from(req.body, 'base64').toString('utf-8');
+  // const decodedString = Buffer.from(req.body, 'base64').toString('utf-8');
   
-  const jsonObject = isStringJson(decodedString) ? JSON.parse(decodedString) : {};
+  // const jsonObject = isStringJson(decodedString) ? JSON.parse(decodedString) : {};
   
-  const playerAddedDataLog = jsonObject?.event?.data?.block?.logs?.[0]?.data ?? '';
+  const playerAddedDataLog = req.body?.event?.data?.block?.logs?.[0]?.data ?? '';
   
   const log = playerAddedDataLog.replace('0x', '');
   const firstPart = log.slice(0, log.length / 2);
   const secondPart = log.slice(log.length / 2);
   const customerPublicKey = '0x' + firstPart.slice(-40); // Only valid for ETH
   const position = parseInt('0x' + secondPart, 16) + 1;
-  const groupId = (jsonObject?.event?.data?.block?.logs?.[0]?.topics?.[1] ?? '').slice(-24); // MongoID
+  const groupId = (req.body?.event?.data?.block?.logs?.[0]?.topics?.[1] ?? '').slice(-24); // MongoID
   const companyId = 'company-1';
   
   await logService.sendInfoMessage('postSetPosition processed', {
