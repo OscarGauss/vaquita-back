@@ -148,7 +148,7 @@ export class LogService {
   
   async sendInfoMessage(title: string, content: any, text?: boolean) {
     log(LogLevel.INFO)(`INFO: sending info message "${title}"`, content);
-    let contentText = stringifyObject(content, 5);
+    let contentText = stringifyObject(content, 10);
     if (text) {
       contentText = this.toText(content);
     }
