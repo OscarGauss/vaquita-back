@@ -14,7 +14,9 @@ const log = (logLevel: LogLevel) => (message: string, content?: any) => {
 
 export class LogService {
   _JUKI_INFO_LOGS_CHAT_ID: string = '';
+  _JUKI_INFO_LOGS_CHAT_TOPIC_ID: string = '';
   _JUKI_ERROR_LOGS_CHAT_ID: string = '';
+  _JUKI_ERROR_LOGS_CHAT_TOPIC_ID: string = '';
   _HEADER?: string;
   // The maximum length of a Telegram message is 4096 characters and it must be UTF-8 encoded.
   readonly maxSizeText = 1024;
@@ -22,9 +24,11 @@ export class LogService {
   constructor() {
   }
   
-  config(jukiInfoLogsChatId: string, jukiErrorLogsChatId: string) {
+  config(jukiInfoLogsChatId: string, jukiInfoLogsChatTopicId: string, jukiErrorLogsChatId: string, jukiErrorLogsChatTopicId: string) {
     this._JUKI_INFO_LOGS_CHAT_ID = jukiInfoLogsChatId;
+    this._JUKI_INFO_LOGS_CHAT_TOPIC_ID = jukiInfoLogsChatTopicId;
     this._JUKI_ERROR_LOGS_CHAT_ID = jukiErrorLogsChatId;
+    this._JUKI_ERROR_LOGS_CHAT_TOPIC_ID = jukiErrorLogsChatTopicId;
   }
   
   setHeader(header: string) {
@@ -57,15 +61,15 @@ export class LogService {
       .split('!').join('\\!');
   }
   
-  async sendMessage(markdownV2Text: string, chatId: string) {
-    await jukiLogsBot.sendMessage(markdownV2Text, chatId);
+  async sendMessage(markdownV2Text: string, chatId: string, messageThreadId: string) {
+    await jukiLogsBot.sendMessage(markdownV2Text, chatId, messageThreadId);
   }
   
   getTitle(title: string) {
     return `${this.escape(this._HEADER + ':')} *${this.escape(title)}*`;
   }
   
-  async sendMessages(messages: string[], chatId: string) {
+  async sendMessages(messages: string[], chatId: string, messageThreadId: string) {
     const results = [];
     for (let i = 0; i < messages.length; i++) {
       results.push(await this.sendMessage(
@@ -74,6 +78,7 @@ export class LogService {
           ? this.escape(`\n${i + 1} / ${messages.length} [${messages[i].length} / ${this.maxSizeText}]`)
           : '')
         , chatId,
+        messageThreadId,
       ));
     }
     return results;
@@ -121,13 +126,15 @@ export class LogService {
       });
       const contentText = `\nlog too long for a message, url of file where log is displayed: ${url}`;
       return await this.sendMessages([
-        [
-          this.getTitle(title),
-          this.escape(contentText),
-        ].join('\n'),
-      ], this._JUKI_ERROR_LOGS_CHAT_ID);
+          [
+            this.getTitle(title),
+            this.escape(contentText),
+          ].join('\n'),
+        ],
+        this._JUKI_ERROR_LOGS_CHAT_ID,
+        this._JUKI_ERROR_LOGS_CHAT_TOPIC_ID);
     } else {
-      return await this.sendMessages(messages, this._JUKI_ERROR_LOGS_CHAT_ID);
+      return await this.sendMessages(messages, this._JUKI_ERROR_LOGS_CHAT_ID, this._JUKI_ERROR_LOGS_CHAT_TOPIC_ID);
     }
   }
   
@@ -175,13 +182,15 @@ export class LogService {
       });
       contentText = `\nlog too long for a message, url of file where log is displayed: ${url}`;
       return await this.sendMessages([
-        [
-          this.getTitle(title),
-          this.escape(contentText),
-        ].join('\n'),
-      ], this._JUKI_INFO_LOGS_CHAT_ID);
+          [
+            this.getTitle(title),
+            this.escape(contentText),
+          ].join('\n'),
+        ],
+        this._JUKI_INFO_LOGS_CHAT_ID,
+        this._JUKI_INFO_LOGS_CHAT_TOPIC_ID);
     } else {
-      return await this.sendMessages(messages, this._JUKI_INFO_LOGS_CHAT_ID);
+      return await this.sendMessages(messages, this._JUKI_INFO_LOGS_CHAT_ID, this._JUKI_INFO_LOGS_CHAT_TOPIC_ID);
     }
   }
 }

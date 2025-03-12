@@ -77,7 +77,7 @@ export class TelegramBotService {
       });
   }
   
-  sendMessage(text: string, chatId: string) {
-    return this.send(`sendMessage?chat_id=${chatId}&text=${text}&parse_mode=MarkdownV2`);
+  sendMessage(text: string, chatId: string, messageThreadId: string) {
+    return this.send(`sendMessage?chat_id=${chatId}&message_thread_id=${messageThreadId}&text=${text}&parse_mode=MarkdownV2`);
   }
 }

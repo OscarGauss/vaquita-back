@@ -18,7 +18,9 @@ export const MONGO_DATABASE_NAME = process.env.MONGO_DATABASE_NAME || '';
 export const COMPANY_HOSTS = (process.env.COMPANY_HOSTS || '').split(',,').map(hosts => hosts.split(','));
 
 export const TELEGRAM_JUKI_INFO_LOGS_CHAT_ID = process.env.TELEGRAM_JUKI_INFO_LOGS_CHAT_ID || '';
+export const TELEGRAM_JUKI_INFO_LOGS_CHAT_TOPIC_ID = process.env.TELEGRAM_JUKI_INFO_LOGS_CHAT_TOPIC_ID || '';
 export const TELEGRAM_JUKI_ERROR_LOGS_CHAT_ID = process.env.TELEGRAM_JUKI_ERROR_LOGS_CHAT_ID || '';
+export const TELEGRAM_JUKI_ERROR_LOGS_CHAT_TOPIC_ID = process.env.TELEGRAM_JUKI_ERROR_LOGS_CHAT_TOPIC_ID || '';
 
 export const AWS_S3_JUKI_FILES_PUBLIC_BUCKET = process.env.AWS_S3_JUKI_FILES_PUBLIC_BUCKET || '';
 
