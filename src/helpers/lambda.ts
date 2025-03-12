@@ -53,6 +53,8 @@ export const logApiLambdaHandler = async <T, >(event: any, context: any, name: s
         statusCode: 403,
         body: JSON.stringify(errorsResponse('unknown origin')),
       };
+      await logService.sendErrorMessage('unknown origin', { origin, XAlchemySignature });
+      
       log(LogLevel.DEBUG)('the following response was sent', response);
       return response;
     }
