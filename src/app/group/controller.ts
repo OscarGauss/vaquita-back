@@ -498,7 +498,7 @@ export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkRes
     ...group.members,
     [customerPublicKey]: {
       publicKey: customerPublicKey,
-      position: group.members[customerPublicKey]?.position ?? -1,
+      position,
       deposits: {},
       withdrawals: {},
     },
