@@ -114,9 +114,9 @@ export const getAllGroups = async (req: JkRequest<{}, {
   }
   if (customerPublicKey) {
     if (myGroups) {
-      filter[`members.${customerPublicKey}`] = { $exists: true };
+      filter[`members.${customerPublicKey.toLowerCase()}`] = { $exists: true };
     } else {
-      filter[`members.${customerPublicKey}`] = { $exists: false };
+      filter[`members.${customerPublicKey.toLowerCase()}`] = { $exists: false };
     }
   }
   
