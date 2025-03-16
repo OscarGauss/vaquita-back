@@ -212,7 +212,7 @@ export const postDepositGroup = async (req: JkRequest<{ id: string }>, res: JkRe
           withdrawals: {},
         },
       };
-    } else {
+    } else { // no enter
       const position = memberPositions.pop() as number;
       newMembers = {
         ...group.members,
@@ -488,7 +488,14 @@ export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkRes
     [customerPublicKey]: {
       publicKey: customerPublicKey,
       position,
-      deposits: {},
+      deposits: {
+        [0]: {
+          amount: group.collateralAmount,
+          round: 0,
+          timestamp: Date.now(),
+          transactionSignature: '',
+        },
+      },
       withdrawals: {},
     },
   };
