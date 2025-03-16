@@ -462,6 +462,7 @@ export const __setTimestampGroup = async (req: JkRequest<{ id: string }>, res: J
 };
 
 // Only valid for ETH and alchemy webhook
+// Only valid for ETC and Sepolia Scoll
 export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkResponse, next: NextFunction) => {
   
   await logService.sendInfoMessage('postSetPosition start', {
@@ -480,7 +481,7 @@ export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkRes
   const customerPublicKey = '0x' + firstPart.slice(-40); // Only valid for ETH
   const position = parseInt('0x' + secondPart, 16) + 1;
   const groupId = (req.body?.event?.data?.block?.logs?.[0]?.topics?.[1] ?? '').slice(-24); // MongoID
-  const companyId = 'company-1';
+  const companyId = 'company-2';
   
   const group = await getGroup(companyId, groupId);
   const newMembers: GroupBaseDocument['members'] = {
