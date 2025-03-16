@@ -482,17 +482,6 @@ export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkRes
   const groupId = (req.body?.event?.data?.block?.logs?.[0]?.topics?.[1] ?? '').slice(-24); // MongoID
   const companyId = 'company-1';
   
-  await logService.sendInfoMessage('postSetPosition processed', {
-    body: req.body, headers: req.headers, params: req.params,
-    playerAddedDataLog,
-    secondPart,
-    position,
-    firstPart,
-    customerPublicKey,
-    groupId,
-    companyId,
-  });
-  
   const group = await getGroup(companyId, groupId);
   const newMembers: GroupBaseDocument['members'] = {
     ...group.members,
@@ -503,6 +492,18 @@ export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkRes
       withdrawals: {},
     },
   };
+  
+  await logService.sendInfoMessage('postSetPosition processed', {
+    body: req.body, headers: req.headers, params: req.params,
+    playerAddedDataLog,
+    secondPart,
+    position,
+    firstPart,
+    customerPublicKey,
+    groupId,
+    companyId,
+    newMembers,
+  });
   
   await updateGroup(groupId, {
     members: newMembers,

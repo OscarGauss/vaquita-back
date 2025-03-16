@@ -18,7 +18,7 @@ import { log, logService } from 'services/log';
 import { LogLevel } from 'types';
 
 const runtimeId = process.env.AWS_LAMBDA_LOG_STREAM_NAME?.split(']').pop() || '-';
-logService.setHeader(`API express lambda Vaquita 0.1 (${runtimeId})`);
+logService.setHeader(`API express lambda Vaquita 0.2 (${runtimeId})`);
 const upDate = new Date();
 log(LogLevel.INFO)(`API express lambda Vaquita starting at: ${upDate.toLocaleDateString()} ${upDate.toLocaleTimeString()}`);
 
