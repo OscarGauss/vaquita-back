@@ -1,7 +1,7 @@
 import { Filter, Sort } from 'mongodb';
 import { logService } from 'services/log';
 import { EntityState, JkRequest, JkResponse, NextFunction, UpdateEntityDocument } from 'types';
-import { getGroupSlots, toGroupResponseDTO } from './helpers';
+import { getCollateralAmount, getGroupSlots, toGroupResponseDTO } from './helpers';
 import { createGroup, deleteGroup, getGroup, getGroups, updateGroup } from './services';
 import {
   GroupBaseDocument,
@@ -46,7 +46,7 @@ export const postCreateGroup = async (req: JkRequest, res: JkResponse, next: Nex
     customerPublicKey,
   } = req.body as GroupCreateDTO;
   
-  const collateralAmount = amount * totalMembers;
+  const collateralAmount = getCollateralAmount(amount, totalMembers);
   
   const companyId = req.company.id;
   const newGroup: GroupBaseDocument = {
@@ -193,7 +193,6 @@ export const postDepositGroup = async (req: JkRequest<{ id: string }>, res: JkRe
   // TODO: validate amount
   
   const group = await getGroup(req.company.id, groupId);
-  const collateral = group.amount * group.totalMembers;
   let newMembers: GroupBaseDocument['members'];
   const memberPositions = [ ...group.memberPositions ];
   if (round === 0) {
@@ -204,7 +203,7 @@ export const postDepositGroup = async (req: JkRequest<{ id: string }>, res: JkRe
           ...group.members[customerPublicKey],
           deposits: {
             [round]: {
-              amount: collateral,
+              amount: group.collateralAmount,
               round,
               timestamp: now.getTime(),
               transactionSignature,
@@ -222,7 +221,7 @@ export const postDepositGroup = async (req: JkRequest<{ id: string }>, res: JkRe
           position,
           deposits: {
             [round]: {
-              amount: collateral,
+              amount: group.collateralAmount,
               round,
               timestamp: now.getTime(),
               transactionSignature,
@@ -380,7 +379,7 @@ export const postWithdrawal = async (req: JkRequest<{ id: string }>, res: JkResp
   const now = new Date();
   
   const groupId = req.params.id;
-  const { customerPublicKey, transactionSignature, type /*amount*/ } = req.body as GroupWithdrawalDTO;
+  const { customerPublicKey, transactionSignature, type, amount } = req.body as GroupWithdrawalDTO;
   
   // TODO: validate amount
   
@@ -431,7 +430,7 @@ export const postWithdrawal = async (req: JkRequest<{ id: string }>, res: JkResp
         withdrawals: {
           ...group.members[customerPublicKey].withdrawals,
           [GroupWithdrawalType.INTEREST]: {
-            amount: 0,
+            amount: amount ?? 0,
             type: GroupWithdrawalType.INTEREST,
             timestamp: now.getTime(),
             transactionSignature,
