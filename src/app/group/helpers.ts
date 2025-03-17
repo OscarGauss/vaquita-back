@@ -180,6 +180,7 @@ export const toGroupResponseDTO = (
     isOwner: customerPublicKey === group.ownerPublicKey,
     myPosition: me?.position || 0,
     currentPosition,
+    isPublic: !!group.isPublic,
   };
 };
 

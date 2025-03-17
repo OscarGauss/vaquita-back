@@ -61,6 +61,7 @@ export const postCreateGroup = async (req: JkRequest, res: JkResponse, next: Nex
     memberPositions: [],
     ownerPublicKey: customerPublicKey,
     members: {},
+    isPublic: false,
   };
   
   const result = await createGroup(newGroup);
@@ -154,7 +155,7 @@ export const getAllGroups = async (req: JkRequest<{}, {
       break;
     default:
   }
-  const groups = await getGroups(req.company.id, filter, sort);
+  const groups = [ ...(await getGroups(req.company.id, { isPublic: true }, sort)), ...(await getGroups(req.company.id, filter, sort)) ];
   const contents: GroupResponseDTO[] = groups
     .map((group) => toGroupResponseDTO(group, customerPublicKey))
     .filter(

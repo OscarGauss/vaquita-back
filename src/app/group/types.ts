@@ -52,6 +52,7 @@ export interface GroupBaseDocument {
   startsOnTimestamp: number;
   memberPositions: number[];
   ownerPublicKey: string;
+  isPublic: boolean;
 }
 
 export interface GroupCreateDTO
@@ -124,6 +125,7 @@ export interface GroupResponseDTO {
       enabled: boolean,
     };
   };
+  isPublic: boolean;
 }
 
 export type GroupDocument = EntityDocument<GroupBaseDocument>;
