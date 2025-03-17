@@ -98,7 +98,7 @@ export const toGroupResponseDTO = (
   }
   
   for (let i = 0; i <= group.totalMembers; i++) {
-    countSuccessRounds += +(countSuccessDeposits[i] === group.totalMembers - (i === 0 ? 0 : 1));
+    countSuccessRounds += +(countSuccessDeposits[i] === (group.totalMembers - (i === 0 ? 0 : 1)));
   }
   
   const myDeposits: GroupResponseDTO['myDeposits'] = {};
@@ -122,6 +122,8 @@ export const toGroupResponseDTO = (
       timestamp: me?.withdrawals?.collateral?.timestamp ?? 0,
       successfullyWithdrawn: isSuccessTransaction(me?.withdrawals?.collateral, group.collateralAmount),
       enabled: countSuccessRounds === group.totalMembers + 1,
+      // @ts-ignore
+      countSuccessRounds,
     },
     [GroupWithdrawalType.ROUND]: {
       amount: me?.withdrawals?.round?.amount ?? 0,
@@ -130,6 +132,8 @@ export const toGroupResponseDTO = (
       successfullyWithdrawn: isSuccessTransaction(me?.withdrawals?.round, group.amount),
       enabled: // group.myPosition <= group.currentPosition &&
         countSuccessDeposits[me?.position || 0] === group.totalMembers - 1,
+      // @ts-ignore
+      countSuccessRounds,
     },
     [GroupWithdrawalType.INTEREST]: {
       amount: me?.withdrawals?.interest?.amount ?? 0,
@@ -137,6 +141,8 @@ export const toGroupResponseDTO = (
       timestamp: me?.withdrawals?.interest?.timestamp ?? 0,
       successfullyWithdrawn: isSuccessTransaction(me?.withdrawals?.interest, undefined),
       enabled: countSuccessRounds === group.totalMembers + 1,
+      // @ts-ignore
+      countSuccessRounds,
     },
   };
   myWithdrawals.collateral.enabled = myWithdrawals.collateral.enabled && !myWithdrawals.collateral.successfullyWithdrawn;
