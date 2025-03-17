@@ -527,9 +527,7 @@ export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkRes
     doc.startsOnTimestamp = Date.now();
   }
   
-  await updateGroup(groupId, {
-    members: newMembers,
-  });
+  await updateGroup(groupId, doc);
   
   res.sendContent(true);
   // res.sendError(new JkError(ErrorCode.ERR500, { message: 'unprocessed' }));
