@@ -513,6 +513,20 @@ export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkRes
     newMembers,
   });
   
+  const slots = getGroupSlots({
+    members: newMembers,
+    totalMembers: group.totalMembers,
+    collateralAmount: group.collateralAmount,
+  });
+  
+  const doc: UpdateEntityDocument<GroupDocument> = {
+    members: newMembers,
+  };
+  
+  if (slots === 0) { // TODO: only for testing purposes
+    doc.startsOnTimestamp = Date.now();
+  }
+  
   await updateGroup(groupId, {
     members: newMembers,
   });
