@@ -164,10 +164,11 @@ export const getAllGroups = async (req: JkRequest<{}, {
     .map((group) => toGroupResponseDTO(group, customerPublicKey))
     .filter(
       (group) =>
-        (status ? status === group.status : true)
-        && group.totalMembers !== group.slots &&
-        (!myGroups ? group.slots > 0 : true) && // only with free slots
-        true,
+        group.isPublic ? false :
+          (status ? status === group.status : true)
+          && group.totalMembers !== group.slots &&
+          (!myGroups ? group.slots > 0 : true) && // only with free slots
+          true,
     ).sort((a, b) => (b.slots - a.slots) / Math.abs(b.slots - a.slots)));
   
   res.sendContents(contents, { page: 0, size: 0, sort: [], totalElements: contents.length });
