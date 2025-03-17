@@ -77,7 +77,7 @@ export const getGroupSlots = (group: Pick<GroupDocument, 'members' | 'collateral
 };
 
 export const isSuccessTransaction = (deposit: GroupMember['deposits'][number] | GroupMember['withdrawals'][string] | undefined, amount: number | undefined) => {
-  return (typeof amount === 'number' ? !!deposit?.amount && +deposit?.amount === +amount : true) && !!deposit?.timestamp && !!deposit?.transactionSignature;
+  return (typeof amount === 'number' ? !!deposit?.amount && +deposit?.amount === +amount : true) && !!deposit?.timestamp; // && !!deposit?.transactionSignature;
 };
 
 export const toGroupResponseDTO = (
