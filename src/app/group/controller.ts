@@ -503,7 +503,7 @@ export const postSetPosition = async (req: JkRequest<{ id: string }>, res: JkRes
           amount: group.collateralAmount,
           round: 0,
           timestamp: Date.now(),
-          transactionSignature: '',
+          transactionSignature: 'set-position-tx-fake',
         },
       },
       withdrawals: {},
