@@ -188,8 +188,9 @@ export const postDepositGroup = async (req: JkRequest<{ id: string }>, res: JkRe
   
   const now = new Date();
   const groupId = req.params.id;
-  const { customerPublicKey, transactionSignature, round /*amount*/ } = req.body as GroupDepositDTO;
+  const { customerPublicKey: _customerPublicKey, transactionSignature, round /*amount*/ } = req.body as GroupDepositDTO;
   
+  const customerPublicKey = _customerPublicKey.toLowerCase();
   // TODO: validate amount
   
   const group = await getGroup(req.company.id, groupId);
