@@ -380,8 +380,9 @@ export const postWithdrawal = async (req: JkRequest<{ id: string }>, res: JkResp
   const now = new Date();
   
   const groupId = req.params.id;
-  const { customerPublicKey, transactionSignature, type, amount } = req.body as GroupWithdrawalDTO;
+  const { customerPublicKey: _customerPublicKey, transactionSignature, type, amount } = req.body as GroupWithdrawalDTO;
   
+  const customerPublicKey = _customerPublicKey.toLowerCase();
   // TODO: validate amount
   
   const group = await getGroup(req.company.id, groupId);
