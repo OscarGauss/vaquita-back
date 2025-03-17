@@ -12,6 +12,11 @@ import { addMonths, addWeeks } from 'date-fns';
 export const getCollateralAmount = (amount: number, totalMembers: number) => amount * (totalMembers - 1);
 
 export const getGroupStatus = (group: GroupDocument, myWithdrawals: GroupResponseDTO['myWithdrawals'], customerPublicKey: string) => {
+  
+  if (group.isPublic) {
+    return GroupStatus.ACTIVE;
+  }
+  
   let depositedCollaterals = 0;
   let joinedUsers = 0;
   for (const member of Object.values(group.members || {})) {
