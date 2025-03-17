@@ -1,6 +1,6 @@
 {
   "name": "vaquina",
-  "version": "0.0.67",
+  "version": "0.0.68",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
