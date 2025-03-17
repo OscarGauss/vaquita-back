@@ -82,8 +82,9 @@ export const isSuccessTransaction = (deposit: GroupMember['deposits'][number] | 
 
 export const toGroupResponseDTO = (
   group: GroupDocument,
-  customerPublicKey: string,
+  _customerPublicKey: string,
 ): GroupResponseDTO => {
+  const customerPublicKey = _customerPublicKey.toLowerCase();
   const me = group.members?.[customerPublicKey];
   
   const countSuccessDeposits: { [key: number]: number } = {};
