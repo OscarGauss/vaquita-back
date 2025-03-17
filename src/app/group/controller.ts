@@ -445,6 +445,7 @@ export const postWithdrawal = async (req: JkRequest<{ id: string }>, res: JkResp
   await updateGroup(groupId, { members: newMembers });
   
   await logService.sendInfoMessage('postWithdrawal', {
+    body: req.body, headers: req.headers, params: req.params,
     customerPublicKey, transactionSignature, type, groupId,
   });
   
@@ -454,6 +455,12 @@ export const postWithdrawal = async (req: JkRequest<{ id: string }>, res: JkResp
 export const archiveGroup = async (req: JkRequest<{ id: string }>, res: JkResponse, next: NextFunction) => {
   const groupId = req.params.id;
   await deleteGroup(groupId);
+  
+  await logService.sendInfoMessage('archiveGroup', {
+    body: req.body, headers: req.headers, params: req.params,
+    groupId,
+  });
+  
   res.sendContent('ok');
 };
 

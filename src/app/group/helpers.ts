@@ -91,7 +91,7 @@ export const toGroupResponseDTO = (
   let countSuccessRounds = 0;
   for (const member of Object.values(group.members || {})) {
     for (const deposit of Object.values(member.deposits || {})) {
-      if (isSuccessTransaction(deposit, +deposit.round === 0 ? group.amount * group.totalMembers : group.amount)) {
+      if (isSuccessTransaction(deposit, +deposit.round === 0 ? getCollateralAmount(group.amount, group.totalMembers) : group.amount)) {
         countSuccessDeposits[deposit.round] = (countSuccessDeposits[deposit.round] ?? 0) + 1;
       }
     }
