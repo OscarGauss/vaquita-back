@@ -619,3 +619,14 @@ export const postScrollRegisterDeposit = async (req: JkRequest<{
   // res.sendContent(true);
   res.sendError(new JkError(ErrorCode.ERR500, { message: 'unprocessed' }));
 };
+
+export const postScrollRegisterWithdraw = async (req: JkRequest<{
+  id: string
+}>, res: JkResponse, next: NextFunction) => {
+  
+  await logService.sendInfoMessage('postScrollRegisterDeposit start', {
+    body: req.body, headers: req.headers, params: req.params,
+  });
+  
+  res.sendError(new JkError(ErrorCode.ERR500, { message: 'unprocessed' }));
+};

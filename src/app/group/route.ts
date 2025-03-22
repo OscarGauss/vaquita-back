@@ -11,6 +11,7 @@ import {
   postEnrollGroup,
   postJoinGroup,
   postScrollRegisterDeposit,
+  postScrollRegisterWithdraw,
   postSetPosition,
   postWithdrawal,
 } from './controller';
@@ -29,6 +30,8 @@ export default (api: API) => {
   api.post('/:id/withdrawal', safeResponse(postWithdrawal));
   api.post('/set-position', safeResponse(postSetPosition));
   api.post('/scroll/register-deposit', safeResponse(postScrollRegisterDeposit));
+  api.post('/scroll/register-withdraw', safeResponse(postScrollRegisterWithdraw));
   
   api.post('/:id/set-timestamp', safeResponse(__setTimestampGroup));
+  
 }

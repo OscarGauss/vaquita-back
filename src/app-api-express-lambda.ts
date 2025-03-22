@@ -1,4 +1,5 @@
 import apiV1GroupRouter from 'app/group/route';
+import apiV1PoolRouter from 'app/pool/route';
 import apiV1Router from 'app/route';
 import type { APIGatewayEvent, Context } from 'aws-lambda';
 import { NODE_ENV, ORIGINS, VERSION } from 'config/settings';
@@ -40,11 +41,13 @@ log(LogLevel.INFO)('completed finish express set up');
 
 const routes = [
   '/group', '/group/*',
+  '/pool', '/pool/*',
 ];
 api.use(routes, setCompany());
 
 api.register(apiV1Router, { prefix: '/' });
 api.register(apiV1GroupRouter, { prefix: '/group' });
+api.register(apiV1PoolRouter, { prefix: '/pool' });
 
 api.use(notFoundResponse);
 
