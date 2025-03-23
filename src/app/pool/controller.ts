@@ -1,6 +1,6 @@
 import { GroupPeriod } from 'app/group/types';
 import { createPoolDeposit, getPoolDepositByDepositId, getPoolDeposits, updatePoolDeposit } from 'app/pool/services';
-import { DepositPoolStatus, GroupCrypto, PoolDepositBaseDocument } from 'app/pool/types';
+import { DepositPoolStatus, GroupCrypto, PoolDepositBaseDocument, PoolDepositDocument } from 'app/pool/types';
 import { logService } from 'services/log';
 import { JkRequest, JkResponse, NextFunction } from 'types';
 
@@ -86,6 +86,12 @@ export const getData = async (req: JkRequest, res: JkResponse, next: NextFunctio
   
   const myDeposits = poolDeposits.filter((poolDeposit) => poolDeposit.customerPublicKey === customerPublicKey);
   
+  const depositsByCustomer: { [key: string]: PoolDepositDocument } = {};
+  
+  poolDeposits.forEach((poolDeposit) => {
+    depositsByCustomer[poolDeposit.customerPublicKey] = poolDeposit;
+  });
+  
   res.sendContent({
     volumePool: volumePool.toString(),
     rewardPool: rewardPool.toString(),
@@ -93,6 +99,7 @@ export const getData = async (req: JkRequest, res: JkResponse, next: NextFunctio
     name: '6 months',
     crypto: GroupCrypto.USDC,
     rounds: 6,
+    participants: Object.keys(depositsByCustomer).length,
     startsOnTimestamp: new Date(2025, 2, 21).getTime(),
     myDeposits: myDeposits.map(({ event, ...deposit }) => ({
       ...deposit,
