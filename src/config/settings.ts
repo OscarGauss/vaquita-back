@@ -9,6 +9,7 @@ export const VERSION = process.env.VERSION || '0.0.0';
 export const ORIGINS = [
   ...(process.env.ORIGINS || '').split(','),
   /^((https:\/\/vaquita\.fi)|(https:\/\/[a-zA-Z0-9\-_]+\.vaquita\.fi))$/,
+  /^((https:\/\/ngrok-free\.app)|(https:\/\/[a-zA-Z0-9\-_]+\.ngrok-free\.app))$/,
 ];
 export const PORT = process.env.PORT || 4000;
 
