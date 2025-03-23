@@ -62,7 +62,11 @@ export const postScrollTransactionsWithdraw = async (req: JkRequest, res: JkResp
   const rewardWithdrawn = BigInt(`0x${reward}`).toString();
   
   const poolDeposit = await getPoolDepositByDepositId('', depositId);
-  await updatePoolDeposit(poolDeposit._id.toString(), { amountWithdrawn, rewardWithdrawn });
+  await updatePoolDeposit(poolDeposit._id.toString(), {
+    amountWithdrawn,
+    rewardWithdrawn,
+    status: DepositPoolStatus.CONCLUDED,
+  });
   
   res.sendContent(true);
 };
