@@ -19,7 +19,7 @@ export const postScrollTransactionsDeposit = async (req: JkRequest, res: JkRespo
   const transactionHash = req.body?.event?.data?.block?.logs?.[0]?.transaction?.hash;
   const timestamp = Number(req.body?.event?.data?.block?.timestamp ?? 0);
   const amount = BigInt(req.body?.event?.data?.block?.logs?.[0]?.data ?? 0).toString();
-  const depositId = req.body?.event?.data?.block?.logs?.[0]?.data?.topics?.[1] ?? '';
+  const depositId = req.body?.event?.data?.block?.logs?.[0]?.topics?.[1] ?? '';
   const customerPublicKey = req.body?.event?.data?.block?.logs?.[0]?.transaction?.from?.address ?? '';
   const contractAddress = req.body?.event?.data?.block?.logs?.[0]?.account?.address ?? '';
   
@@ -56,7 +56,7 @@ export const postScrollTransactionsWithdraw = async (req: JkRequest, res: JkResp
     body: req.body, headers: req.headers, params: req.params,
   });
   
-  const depositId = req.body?.event?.data?.block?.logs?.[0]?.data?.topics?.[1] ?? '';
+  const depositId = req.body?.event?.data?.block?.logs?.[0]?.topics?.[1] ?? '';
   const [ amount, reward ] = splitInHalf((req.body?.event?.data?.block?.logs?.[0]?.data + '').replace('0x', ''));
   const amountWithdrawn = BigInt(`0x${amount}`).toString();
   const rewardWithdrawn = BigInt(`0x${reward}`).toString();
