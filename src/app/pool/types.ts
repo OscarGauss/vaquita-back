@@ -21,9 +21,9 @@ export interface PoolDepositBaseDocument {
   customerPublicKey: string,
   crypto: GroupCrypto,
   status: DepositPoolStatus,
-  event: object,
   rewardWithdrawn: string,
   amountWithdrawn: string,
+  event: object,
 }
 
 export interface PoolDepositDTO {

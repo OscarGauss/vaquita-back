@@ -1,4 +1,5 @@
-import { createPoolDeposit, getPoolDepositByDepositId, updatePoolDeposit } from 'app/pool/services';
+import { GroupPeriod } from 'app/group/types';
+import { createPoolDeposit, getPoolDepositByDepositId, getPoolDeposits, updatePoolDeposit } from 'app/pool/services';
 import { DepositPoolStatus, GroupCrypto, PoolDepositBaseDocument } from 'app/pool/types';
 import { logService } from 'services/log';
 import { JkRequest, JkResponse, NextFunction } from 'types';
@@ -69,4 +70,31 @@ export const postScrollTransactionsWithdraw = async (req: JkRequest, res: JkResp
   });
   
   res.sendContent(true);
+};
+
+export const getData = async (req: JkRequest, res: JkResponse, next: NextFunction) => {
+  
+  const { contractAddress, customerPublicKey } = req.query as { contractAddress: string, customerPublicKey: string };
+  
+  const poolDeposits = await getPoolDeposits('', { contractAddress });
+  
+  const volumePool = poolDeposits.reduce((total, { amount, depositId, amountWithdrawn }) => {
+    return total + (BigInt(amount) - BigInt(amountWithdrawn));
+  }, 0n);
+  
+  const rewardPool = volumePool * BigInt(0.03);
+  
+  const myDeposits = poolDeposits.filter((poolDeposit) => poolDeposit.customerPublicKey === customerPublicKey);
+  
+  res.sendContent({
+    volumePool: volumePool.toString(),
+    rewardPool: rewardPool.toString(),
+    period: GroupPeriod.MONTHLY,
+    name: '6 months',
+    rounds: 6,
+    startsOnTimestamp: new Date(2025, 2, 21).getTime(),
+    myDeposits: myDeposits.map(({ event, ...deposit }) => ({
+      ...deposit,
+    })),
+  });
 };
