@@ -26,16 +26,4 @@ export interface PoolDepositBaseDocument {
   event: object,
 }
 
-export interface PoolDepositDTO {
-  companyId: string,
-  contractAddress: string,
-  transactionHash: string,
-  timestamp: number,
-  amount: string,
-  depositId: string,
-  customerPublicKey: string,
-  crypto: GroupCrypto,
-  status: DepositPoolStatus,
-}
-
 export type PoolDepositDocument = EntityDocument<PoolDepositBaseDocument>;

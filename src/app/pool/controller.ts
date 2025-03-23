@@ -91,6 +91,7 @@ export const getData = async (req: JkRequest, res: JkResponse, next: NextFunctio
     rewardPool: rewardPool.toString(),
     period: GroupPeriod.MONTHLY,
     name: '6 months',
+    crypto: GroupCrypto.USDC,
     rounds: 6,
     startsOnTimestamp: new Date(2025, 2, 21).getTime(),
     myDeposits: myDeposits.map(({ event, ...deposit }) => ({
