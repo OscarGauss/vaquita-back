@@ -97,6 +97,7 @@ export const getData = async (req: JkRequest, res: JkResponse, next: NextFunctio
     rewardPool: rewardPool.toString(),
     period: GroupPeriod.MONTHLY,
     name: '6 months',
+    // test
     crypto: contractAddress === '0x882dc06eb03019e38ae4136a62f57e0e8315c392' ? GroupCrypto.WLD : GroupCrypto.USDC,
     rounds: 6,
     participants: Object.keys(depositsByCustomer).length,
