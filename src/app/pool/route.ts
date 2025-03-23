@@ -14,4 +14,13 @@ export default (api: API) => {
   api.post('/scroll/transactions/deposit', safeResponse(postScrollTransactionsDeposit));
   api.post('/scroll/transactions/withdraw', safeResponse(postScrollTransactionsWithdraw));
   
+  api.post('/zksync/transactions/deposit', safeResponse(postScrollTransactionsDeposit));
+  api.post('/zksync/transactions/withdraw', safeResponse(postScrollTransactionsWithdraw));
+  
+  api.post('/mantle/transactions/deposit', safeResponse(postScrollTransactionsDeposit));
+  api.post('/mantle/transactions/withdraw', safeResponse(postScrollTransactionsWithdraw));
+  
+  api.post('/worldchain/transactions/deposit', safeResponse(postScrollTransactionsDeposit));
+  api.post('/worldchain/transactions/withdraw', safeResponse(postScrollTransactionsWithdraw));
+  
 }
