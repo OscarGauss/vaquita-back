@@ -9,6 +9,7 @@ export enum DepositPoolStatus {
 export enum GroupCrypto {
   USDC = 'USDC',
   SOL = 'SOL',
+  WLD = 'WLD',
 }
 
 export interface PoolDepositBaseDocument {
