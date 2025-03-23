@@ -82,7 +82,7 @@ export const getData = async (req: JkRequest, res: JkResponse, next: NextFunctio
     return total + (BigInt(amount) - BigInt(amountWithdrawn));
   }, 0n);
   
-  const rewardPool = volumePool * BigInt(0.03);
+  const rewardPool = volumePool / BigInt(33);
   
   const myDeposits = poolDeposits.filter((poolDeposit) => poolDeposit.customerPublicKey === customerPublicKey);
   
